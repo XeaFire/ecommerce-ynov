@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vendre un article - GG Shop{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .sell-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1542751110-97427bbecf20?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="sell-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="auth-card">
+                    <div class="card-body p-4 p-lg-5">
+                        <h1 class="auth-title text-center">Vendre un équipement</h1>
+
+                        {{ form_start(form) }}
+                            <div class="mb-4">
+                                {{ form_label(form.name, 'Nom de l\'équipement', {'label_attr': {'class': 'form-label'}}) }}
+                                <div class="input-group">
+                                    <span class="input-group-text border-end-0">
+                                        <i class="fas fa-gamepad"></i>
+                                    </span>
+                                    {{ form_widget(form.name, {
+                                        'attr': {
+                                            'class': 'form-control border-start-0',
+                                            'placeholder': 'Ex: Clavier Mécanique RGB'
+                                        }
+                                    }) }}
+                                </div>
+                                {{ form_errors(form.name) }}
+                            </div>
+
+                            <div class="mb-4">
+                                {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.description, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Décrivez votre équipement en détail'
+                                    }
+                                }) }}
+                                {{ form_errors(form.description) }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    {{ form_label(form.price, 'Prix', {'label_attr': {'class': 'form-label'}}) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end-0">
+                                            <i class="fas fa-euro-sign"></i>
+                                        </span>
+                                        {{ form_widget(form.price, {
+                                            'attr': {
+                                                'class': 'form-control border-start-0',
+                                                'placeholder': '0.00'
+                                            }
+                                        }) }}
+                                    </div>
+                                    {{ form_errors(form.price) }}
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    {{ form_label(form.quantity, 'Quantité', {'label_attr': {'class': 'form-label'}}) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end-0">
+                                            <i class="fas fa-boxes"></i>
+                                        </span>
+                                        {{ form_widget(form.quantity, {
+                                            'attr': {
+                                                'class': 'form-control border-start-0',
+                                                'placeholder': '1'
+                                            }
+                                        }) }}
+                                    </div>
+                                    {{ form_errors(form.quantity) }}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                {{ form_label(form.image, 'Image', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.image, {
+                                    'attr': {
+                                        'class': 'form-control'
+                                    }
+                                }) }}
+                                {{ form_errors(form.image) }}
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-neon">
+                                    <i class="fas fa-upload me-2"></i>METTRE EN VENTE
+                                </button>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

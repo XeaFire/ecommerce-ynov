@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Inscription - GG Shop{% endblock %}
+{% block title %}Inscription{% endblock %}
 
 {% block stylesheets %}
 <style>
@@ -97,78 +97,51 @@
 {% endblock %}
 
 {% block body %}
-<section class="auth-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="auth-card">
-                    <div class="card-body p-4 p-lg-5">
-                        <h1 class="auth-title text-center">Rejoins la team</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Inscription</h2>
 
-                        {{ form_start(registrationForm) }}
-                            <div class="mb-4">
-                                {{ form_label(registrationForm.username, 'Pseudo de Gamer', {'label_attr': {'class': 'form-label'}}) }}
-                                <div class="input-group">
-                                    <span class="input-group-text border-end-0">
-                                        <i class="fas fa-gamepad"></i>
-                                    </span>
-                                    {{ form_widget(registrationForm.username, {
-                                        'attr': {
-                                            'class': 'form-control border-start-0',
-                                            'placeholder': 'xXDarkSasuke97Xx'
-                                        }
-                                    }) }}
-                                </div>
+                    {% for flash_error in app.flashes('error') %}
+                        <div class="alert alert-danger">
+                            {{ flash_error }}
+                        </div>
+                    {% endfor %}
+
+                    {{ form_start(registrationForm) }}
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.username, 'Pseudo', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(registrationForm.username, {'attr': {'class': 'form-control' ~ (form_errors(registrationForm.username) ? ' is-invalid' : '')}}) }}
+                            <div class="invalid-feedback">
                                 {{ form_errors(registrationForm.username) }}
                             </div>
+                        </div>
 
-                            <div class="mb-4">
-                                {{ form_label(registrationForm.email, 'Email de contact', {'label_attr': {'class': 'form-label'}}) }}
-                                <div class="input-group">
-                                    <span class="input-group-text border-end-0">
-                                        <i class="fas fa-envelope"></i>
-                                    </span>
-                                    {{ form_widget(registrationForm.email, {
-                                        'attr': {
-                                            'class': 'form-control border-start-0',
-                                            'placeholder': 'progamer@ggshop.com'
-                                        }
-                                    }) }}
-                                </div>
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.email, 'Email', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control' ~ (form_errors(registrationForm.email) ? ' is-invalid' : '')}}) }}
+                            <div class="invalid-feedback">
                                 {{ form_errors(registrationForm.email) }}
                             </div>
+                        </div>
 
-                            <div class="mb-4">
-                                {{ form_label(registrationForm.plainPassword, 'Mot de passe secret', {'label_attr': {'class': 'form-label'}}) }}
-                                <div class="input-group">
-                                    <span class="input-group-text border-end-0">
-                                        <i class="fas fa-lock"></i>
-                                    </span>
-                                    {{ form_widget(registrationForm.plainPassword, {
-                                        'attr': {
-                                            'class': 'form-control border-start-0',
-                                            'placeholder': 'Minimum 6 caractères'
-                                        }
-                                    }) }}
-                                </div>
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.plainPassword, 'Mot de passe', {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control' ~ (form_errors(registrationForm.plainPassword) ? ' is-invalid' : '')}}) }}
+                            <div class="invalid-feedback">
                                 {{ form_errors(registrationForm.plainPassword) }}
                             </div>
+                        </div>
 
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-neon">
-                                    <i class="fas fa-gamepad me-2"></i>REJOINDRE LA TEAM
-                                </button>
-                            </div>
-                        {{ form_end(registrationForm) }}
-
-                        <p class="text-center mt-4 mb-0">
-                            Déjà dans la team ? 
-                            <a href="{{ path('app_login') }}" class="auth-link">Connecte-toi !</a>
-                        </p>
-                    </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">S'inscrire</button>
+                        </div>
+                    {{ form_end(registrationForm) }}
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %} 

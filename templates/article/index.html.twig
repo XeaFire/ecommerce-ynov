@@ -1,0 +1,95 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Articles - GG Shop{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .articles-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+        padding-bottom: 50px;
+    }
+
+    .article-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .article-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+    }
+
+    .article-image {
+        border-radius: 15px 15px 0 0;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .article-price {
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .article-seller {
+        color: var(--secondary);
+        font-size: 0.9rem;
+    }
+
+    .article-stock {
+        background: rgba(0, 255, 136, 0.1);
+        color: var(--primary);
+        padding: 0.2rem 0.5rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="articles-section">
+    <div class="container">
+        <h1 class="auth-title text-center mb-5">Équipements Gaming</h1>
+
+        {% if articles|length > 0 %}
+            <div class="row g-4">
+                {% for article in articles %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="article-card">
+                            {% if article.image %}
+                                <img src="{{ asset('uploads/articles/' ~ article.image) }}" class="article-image w-100" alt="{{ article.name }}">
+                            {% else %}
+                                <img src="https://via.placeholder.com/400x200" class="article-image w-100" alt="No image">
+                            {% endif %}
+                            <div class="card-body p-4">
+                                <h5 class="card-title text-white mb-3">{{ article.name }}</h5>
+                                <p class="article-price mb-2">{{ article.price|number_format(2, ',', ' ') }} €</p>
+                                <p class="article-seller mb-2">Vendeur: {{ article.seller.username }}</p>
+                                <p class="article-stock mb-3">Stock: {{ article.quantity }}</p>
+                                <div class="d-grid">
+                                    <button class="btn btn-neon">
+                                        <i class="fas fa-shopping-cart me-2"></i>Ajouter au panier
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center text-white">
+                <p>Aucun article disponible pour le moment.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %} 

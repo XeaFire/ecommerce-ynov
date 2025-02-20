@@ -16,21 +16,12 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-<<<<<<< HEAD
             form_login:
                 login_path: app_login
                 check_path: app_login
             logout:
                 path: app_logout
                 target: app_login
-=======
-
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
->>>>>>> 64ea788afc230ef7eb89bbefce7a77a86a607afc
 
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used

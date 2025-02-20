@@ -19,25 +19,18 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('username', TextType::class, [
                 'label' => 'Pseudo',
-                'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer un pseudo',
-                    ]),
-                    new Length([
-                        'min' => 3,
-                        'minMessage' => 'Votre pseudo doit faire au moins {{ limit }} caractères',
-                        'max' => 25,
-                        'maxMessage' => 'Votre pseudo ne peut pas dépasser {{ limit }} caractères',
-                    ]),
-                ],
+                'attr' => ['placeholder' => 'Votre pseudo']
             ])
-            ->add('email', EmailType::class)
+            ->add('email', EmailType::class, [
+                'label' => 'Email',
+                'attr' => ['placeholder' => 'votre@email.com']
+            ])
             ->add('plainPassword', PasswordType::class, [
                 'mapped' => false,
+                'label' => 'Mot de passe',
+                'attr' => ['placeholder' => 'Minimum 6 caractères'],
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez entrer un mot de passe',
-                    ]),
+                    new NotBlank(['message' => 'Veuillez entrer un mot de passe']),
                     new Length([
                         'min' => 6,
                         'minMessage' => 'Votre mot de passe doit faire au moins {{ limit }} caractères',

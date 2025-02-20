@@ -10,7 +10,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'Cet email est déjà utilisé')]
 #[UniqueEntity(fields: ['username'], message: 'Ce pseudo est déjà utilisé')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -21,13 +20,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    #[Assert\NotBlank]
-    #[Assert\Email]
+    #[Assert\NotBlank(message: "L'email est obligatoire")]
+    #[Assert\Email(message: "L'email n'est pas valide")]
     private ?string $email = null;
 
     #[ORM\Column(length: 255, unique: true)]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 3, max: 25)]
+    #[Assert\NotBlank(message: "Le pseudo est obligatoire")]
+    #[Assert\Length(
+        min: 3,
+        max: 25,
+        minMessage: "Le pseudo doit faire au moins {{ limit }} caractères",
+        maxMessage: "Le pseudo ne peut pas dépasser {{ limit }} caractères"
+    )]
     private ?string $username = null;
 
     /**
@@ -42,25 +46,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    private ?string $address = null;
+    #[ORM\Column(type: "float", options: ["default" => 0.0])]
+    private float $balance = 0.0;
 
-    #[ORM\Column(length: 10)]
-    #[Assert\NotBlank]
-    #[Assert\Length(exactly: 5)]
-    #[Assert\Regex(pattern: '/^\d{5}$/', message: 'Le code postal doit contenir exactement 5 chiffres')]
-    private ?string $zipCode = null;
-
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    private ?string $city = null;
-
-    #[ORM\Column(length: 20)]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 10, max: 10)]
-    #[Assert\Regex(pattern: '/^0[1-9]\d{8}$/', message: 'Le numéro de téléphone doit être au format français (10 chiffres commençant par 0)')]
-    private ?string $phone = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $profilePicture = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
@@ -157,47 +147,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAddress(): ?string
+    public function getBalance(): float
     {
-        return $this->address;
+        return $this->balance;
     }
 
-    public function setAddress(string $address): static
+    public function setBalance(float $balance): static
     {
-        $this->address = $address;
+        $this->balance = $balance;
         return $this;
     }
 
-    public function getZipCode(): ?string
+    public function getProfilePicture(): ?string
     {
-        return $this->zipCode;
+        return $this->profilePicture;
     }
 
-    public function setZipCode(string $zipCode): static
+    public function setProfilePicture(?string $profilePicture): static
     {
-        $this->zipCode = $zipCode;
-        return $this;
-    }
-
-    public function getCity(): ?string
-    {
-        return $this->city;
-    }
-
-    public function setCity(string $city): static
-    {
-        $this->city = $city;
-        return $this;
-    }
-
-    public function getPhone(): ?string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(string $phone): static
-    {
-        $this->phone = $phone;
+        $this->profilePicture = $profilePicture;
         return $this;
     }
 
