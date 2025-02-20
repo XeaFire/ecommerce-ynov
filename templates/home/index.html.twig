@@ -1,0 +1,129 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+    .hero-section {
+        height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                    url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-title {
+        font-size: 4rem;
+        color: var(--primary);
+        text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+    }
+
+    .product-card {
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .price-tag {
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .category-badge {
+        background: var(--secondary);
+        color: white;
+        padding: 0.25rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+    }
+
+    .section-title {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 2rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50%;
+        height: 3px;
+        background: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 hero-content">
+                    <h1 class="hero-title mb-4">Level Up Your Game</h1>
+                    <p class="lead mb-4">Équipement pro-gaming et coaching personnalisé pour atteindre le niveau supérieur</p>
+                    <div class="d-flex gap-3">
+                        <a href="#products" class="btn btn-neon">Voir l'équipement</a>
+                        <a href="#coaching" class="btn btn-outline-light">Découvrir le coaching</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products -->
+    <section class="py-5" id="products">
+        <div class="container">
+            <h2 class="section-title">Équipement Pro</h2>
+            <div class="row g-4">
+                {% for product in featuredProducts %}
+                    <div class="col-md-4">
+                        <div class="card product-card h-100">
+                            <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
+                            <div class="card-body">
+                                <span class="category-badge mb-2">{{ product.category }}</span>
+                                <h3 class="h5 text-light">{{ product.name }}</h3>
+                                <p class="price-tag mb-3">{{ product.price }}€</p>
+                                <button class="btn btn-neon w-100">Ajouter au panier</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Coaching Section -->
+    <section class="py-5 bg-black" id="coaching">
+        <div class="container">
+            <h2 class="section-title">Coaching Personnalisé</h2>
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <img src="https://placehold.co/600x400" class="img-fluid rounded" alt="Coaching">
+                </div>
+                <div class="col-md-6">
+                    <h3 class="text-primary mb-4">Progressez avec les meilleurs</h3>
+                    <p class="lead">Nos coachs professionnels vous aident à atteindre vos objectifs gaming.</p>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i> Sessions personnalisées</li>
+                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i> Analyse de vos parties</li>
+                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i> Suivi de progression</li>
+                    </ul>
+                    <a href="#" class="btn btn-neon">Réserver une session</a>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %} 

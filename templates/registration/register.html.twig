@@ -1,0 +1,174 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - GG Shop{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .auth-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+    }
+
+    .auth-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
+    }
+
+    .auth-title {
+        color: var(--primary);
+        text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+        background: rgba(30, 30, 30, 0.9) !important;
+        border: 1px solid rgba(0, 255, 136, 0.2) !important;
+        color: #ffffff !important;
+        padding: 0.8rem;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .form-control:focus {
+        background: rgba(40, 40, 40, 0.95) !important;
+        border-color: var(--primary) !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+    }
+
+    .form-label {
+        color: var(--primary);
+        font-weight: 600;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .input-group-text {
+        background: rgba(30, 30, 30, 0.9) !important;
+        border: 1px solid rgba(0, 255, 136, 0.2) !important;
+        color: var(--primary) !important;
+    }
+
+    .auth-link {
+        color: var(--primary);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .auth-link:hover {
+        color: var(--secondary);
+        text-shadow: 0 0 10px rgba(255, 0, 102, 0.5);
+    }
+
+    .invalid-feedback {
+        color: var(--secondary);
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    .btn-neon {
+        background: var(--primary);
+        color: #000000;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: none;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-neon:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        background: #00ff88;
+        color: #000000;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="auth-card">
+                    <div class="card-body p-4 p-lg-5">
+                        <h1 class="auth-title text-center">Rejoins la team</h1>
+
+                        {{ form_start(registrationForm) }}
+                            <div class="mb-4">
+                                {{ form_label(registrationForm.username, 'Pseudo de Gamer', {'label_attr': {'class': 'form-label'}}) }}
+                                <div class="input-group">
+                                    <span class="input-group-text border-end-0">
+                                        <i class="fas fa-gamepad"></i>
+                                    </span>
+                                    {{ form_widget(registrationForm.username, {
+                                        'attr': {
+                                            'class': 'form-control border-start-0',
+                                            'placeholder': 'xXDarkSasuke97Xx'
+                                        }
+                                    }) }}
+                                </div>
+                                {{ form_errors(registrationForm.username) }}
+                            </div>
+
+                            <div class="mb-4">
+                                {{ form_label(registrationForm.email, 'Email de contact', {'label_attr': {'class': 'form-label'}}) }}
+                                <div class="input-group">
+                                    <span class="input-group-text border-end-0">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    {{ form_widget(registrationForm.email, {
+                                        'attr': {
+                                            'class': 'form-control border-start-0',
+                                            'placeholder': 'progamer@ggshop.com'
+                                        }
+                                    }) }}
+                                </div>
+                                {{ form_errors(registrationForm.email) }}
+                            </div>
+
+                            <div class="mb-4">
+                                {{ form_label(registrationForm.plainPassword, 'Mot de passe secret', {'label_attr': {'class': 'form-label'}}) }}
+                                <div class="input-group">
+                                    <span class="input-group-text border-end-0">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    {{ form_widget(registrationForm.plainPassword, {
+                                        'attr': {
+                                            'class': 'form-control border-start-0',
+                                            'placeholder': 'Minimum 6 caractères'
+                                        }
+                                    }) }}
+                                </div>
+                                {{ form_errors(registrationForm.plainPassword) }}
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-neon">
+                                    <i class="fas fa-gamepad me-2"></i>REJOINDRE LA TEAM
+                                </button>
+                            </div>
+                        {{ form_end(registrationForm) }}
+
+                        <p class="text-center mt-4 mb-0">
+                            Déjà dans la team ? 
+                            <a href="{{ path('app_login') }}" class="auth-link">Connecte-toi !</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 
