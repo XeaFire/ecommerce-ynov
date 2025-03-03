@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}Leveling - Esport Store{% endblock %}</title>
+        <title>{% block title %}Leveling Up - Esport Store{% endblock %}</title>
         
         {# Fonts #}
         <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -66,7 +66,7 @@
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
             <div class="container">
                 <a class="navbar-brand" href="{{ path('app_home') }}">
-                    <span class="text-primary fw-bold">Leveling</span>
+                    <span class="text-primary fw-bold">Leveling Up</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
@@ -92,7 +92,6 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="{{ path('app_account') }}"><i class="fas fa-user me-2"></i>Mon profil</a></li>
-                                    <li><a class="dropdown-item" href="{{ path('app_account') }}?tab=orders"><i class="fas fa-shopping-bag me-2"></i>Mes commandes</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_sell') }}"><i class="fas fa-tag me-2"></i>Vendre un article</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
@@ -138,7 +137,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-4">
-                        <h5 class="text-primary">Leveling</h5>
+                        <h5 class="text-primary">Leveling Up</h5>
                         <p class="text-muted">Votre destination gaming ultime</p>
                     </div>
                     <div class="col-md-4">
