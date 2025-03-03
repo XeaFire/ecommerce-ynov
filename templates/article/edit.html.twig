@@ -1,0 +1,240 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ article.name }} - Leveling Up{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .edit-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1542751110-97427bbecf20?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+    }
+    
+    .image-preview-container {
+        width: 100%;
+        position: relative;
+        padding-top: 100%; /* Ratio 1:1 (carré) */
+        border: 2px dashed rgba(0, 255, 136, 0.3);
+        border-radius: 10px;
+        margin-bottom: 15px;
+        overflow: hidden;
+    }
+    
+    .image-preview {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .image-preview-text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: rgba(0, 255, 136, 0.7);
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('article_image');
+        const imagePreview = document.getElementById('image-preview');
+        const imagePreviewText = document.getElementById('image-preview-text');
+        
+        // Afficher l'image existante si disponible
+        if (imagePreview.src && imagePreview.src !== window.location.href) {
+            imagePreview.style.display = 'block';
+            imagePreviewText.style.display = 'none';
+        }
+        
+        imageInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    imagePreviewText.style.display = 'none';
+                }
+                
+                reader.readAsDataURL(file);
+            } else {
+                // Si aucune nouvelle image n'est sélectionnée et qu'il n'y a pas d'image existante
+                if (!imagePreview.dataset.hasExistingImage) {
+                    imagePreview.style.display = 'none';
+                    imagePreviewText.style.display = 'flex';
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% block body %}
+<section class="edit-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="auth-card">
+                    <div class="card-body p-4 p-lg-5">
+                        <h1 class="auth-title text-center">Modifier l'article</h1>
+                        
+                        <div class="mb-4">
+                            <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn btn-outline-light">
+                                <i class="fas fa-arrow-left me-2"></i>Retour à l'article
+                            </a>
+                        </div>
+                        
+                        {% for message in app.flashes('error') %}
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+
+                        {{ form_start(form) }}
+                            <div class="mb-4">
+                                {{ form_label(form.name, 'Nom de l\'équipement', {'label_attr': {'class': 'form-label'}}) }}
+                                <div class="input-group">
+                                    <span class="input-group-text border-end-0">
+                                        <i class="fas fa-gamepad"></i>
+                                    </span>
+                                    {{ form_widget(form.name, {
+                                        'attr': {
+                                            'class': 'form-control border-start-0',
+                                            'placeholder': 'Ex: Clavier Mécanique RGB'
+                                        }
+                                    }) }}
+                                </div>
+                                {{ form_errors(form.name) }}
+                            </div>
+
+                            <div class="mb-4">
+                                {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.description, {
+                                    'attr': {
+                                        'class': 'form-control',
+                                        'placeholder': 'Décrivez votre équipement en détail'
+                                    }
+                                }) }}
+                                {{ form_errors(form.description) }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    {{ form_label(form.price, 'Prix', {'label_attr': {'class': 'form-label'}}) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end-0">
+                                            <i class="fas fa-euro-sign"></i>
+                                        </span>
+                                        {{ form_widget(form.price, {
+                                            'attr': {
+                                                'class': 'form-control border-start-0',
+                                                'placeholder': '0.00'
+                                            }
+                                        }) }}
+                                    </div>
+                                    {{ form_errors(form.price) }}
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    {{ form_label(form.quantity, 'Quantité', {'label_attr': {'class': 'form-label'}}) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end-0">
+                                            <i class="fas fa-boxes"></i>
+                                        </span>
+                                        {{ form_widget(form.quantity, {
+                                            'attr': {
+                                                'class': 'form-control border-start-0',
+                                                'placeholder': '1'
+                                            }
+                                        }) }}
+                                    </div>
+                                    {{ form_errors(form.quantity) }}
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                {{ form_label(form.image, 'Image', {'label_attr': {'class': 'form-label'}}) }}
+                                <div class="image-preview-container">
+                                    <img id="image-preview" class="image-preview" 
+                                         src="{{ article.image ? asset('uploads/articles/' ~ article.image) : '#' }}" 
+                                         alt="Aperçu de l'image"
+                                         data-has-existing-image="{{ article.image ? 'true' : 'false' }}"
+                                         style="{{ article.image ? 'display: block;' : 'display: none;' }}">
+                                    <span id="image-preview-text" class="image-preview-text" style="{{ article.image ? 'display: none;' : 'display: flex;' }}">
+                                        <i class="fas fa-image fa-2x mb-2"></i><br>
+                                        Aperçu de l'image
+                                    </span>
+                                </div>
+                                {{ form_widget(form.image, {
+                                    'attr': {
+                                        'class': 'form-control'
+                                    }
+                                }) }}
+                                <small class="text-muted">Formats acceptés: JPG, PNG, GIF, WEBP. Taille max: 2 Mo</small>
+                                <small class="d-block text-muted">Laissez vide pour conserver l'image actuelle</small>
+                                {{ form_errors(form.image) }}
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-neon">
+                                    <i class="fas fa-save me-2"></i>ENREGISTRER LES MODIFICATIONS
+                                </button>
+                            </div>
+                        {{ form_end(form) }}
+                        
+                        <div class="mt-4">
+                            <div class="card bg-dark border-danger">
+                                <div class="card-body">
+                                    <h5 class="card-title text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Zone dangereuse</h5>
+                                    <p class="card-text text-muted">La suppression d'un article est définitive et ne peut pas être annulée.</p>
+                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                        <i class="fas fa-trash-alt me-2"></i>Supprimer cet article
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Modal de confirmation de suppression -->
+                        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content bg-dark text-white">
+                                    <div class="modal-header border-secondary">
+                                        <h5 class="modal-title" id="deleteModalLabel">Confirmer la suppression</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Êtes-vous sûr de vouloir supprimer l'article <strong>{{ article.name }}</strong> ?</p>
+                                        <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Cette action est irréversible.</p>
+                                    </div>
+                                    <div class="modal-footer border-secondary">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                        <a href="{{ path('app_article_delete', {'id': article.id}) }}" class="btn btn-danger">
+                                            <i class="fas fa-trash-alt me-2"></i>Supprimer définitivement
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

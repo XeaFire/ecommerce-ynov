@@ -321,9 +321,41 @@
                                             <h5 class="card-title text-white mb-2">{{ article.name }}</h5>
                                             <p class="article-price mb-2">{{ article.price|number_format(2, ',', ' ') }} €</p>
                                             <p class="text-muted mb-3">Stock: {{ article.quantity }}</p>
-                                            <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn btn-outline-light btn-sm w-100">
-                                                <i class="fas fa-eye me-2"></i>Voir détails
-                                            </a>
+                                            <div class="d-flex gap-2">
+                                                <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn btn-outline-light btn-sm flex-grow-1">
+                                                    <i class="fas fa-eye me-2"></i>Voir
+                                                </a>
+                                                {% if isOwnAccount %}
+                                                    <a href="{{ path('app_article_edit', {'id': article.id}) }}" class="btn btn-outline-primary btn-sm">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal{{ article.id }}">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                    
+                                                    <!-- Modal de confirmation de suppression -->
+                                                    <div class="modal fade" id="deleteModal{{ article.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ article.id }}" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content bg-dark text-white">
+                                                                <div class="modal-header border-secondary">
+                                                                    <h5 class="modal-title" id="deleteModalLabel{{ article.id }}">Confirmer la suppression</h5>
+                                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <p>Êtes-vous sûr de vouloir supprimer l'article <strong>{{ article.name }}</strong> ?</p>
+                                                                    <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Cette action est irréversible.</p>
+                                                                </div>
+                                                                <div class="modal-footer border-secondary">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                                    <a href="{{ path('app_article_delete', {'id': article.id}) }}" class="btn btn-danger">
+                                                                        <i class="fas fa-trash-alt me-2"></i>Supprimer définitivement
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

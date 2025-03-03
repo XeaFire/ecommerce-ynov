@@ -90,6 +90,103 @@ class ArticleController extends AbstractController
         ]);
     }
     
+    #[Route('/articles/{id}/edit', name: 'app_article_edit', requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
+    public function edit(Article $article, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        // Vérifier si l'utilisateur est le propriétaire de l'article
+        if ($article->getSeller() !== $this->getUser()) {
+            $this->addFlash('error', 'Vous ne pouvez pas modifier un article qui ne vous appartient pas.');
+            return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
+        }
+        
+        $form = $this->createForm(ArticleType::class, $article);
+        $form->handleRequest($request);
+        
+        // Stocker l'ancienne image pour pouvoir la supprimer si nécessaire
+        $oldImage = $article->getImage();
+        
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Gestion de l'upload d'image
+            if ($imageFile = $form->get('image')->getData()) {
+                $slugger = new AsciiSlugger();
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                
+                // Obtenir l'extension directement depuis le nom du fichier
+                $originalExtension = pathinfo($imageFile->getClientOriginalName(), PATHINFO_EXTENSION);
+                
+                // Vérifier si l'extension est valide
+                if (!$this->isValidImageExtension($originalExtension)) {
+                    $this->addFlash('error', 'Le format de l\'image n\'est pas valide. Utilisez JPG, PNG ou GIF.');
+                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
+                }
+                
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$originalExtension;
+
+                // Vérifier si le répertoire existe, sinon le créer
+                $uploadDir = $this->getParameter('articles_directory');
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                try {
+                    // Déplacer le fichier
+                    $imageFile->move(
+                        $uploadDir,
+                        $newFilename
+                    );
+                    
+                    // Supprimer l'ancienne image si elle existe
+                    if ($oldImage && file_exists($uploadDir.'/'.$oldImage)) {
+                        unlink($uploadDir.'/'.$oldImage);
+                    }
+                    
+                    $article->setImage($newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Une erreur est survenue lors de l\'upload de l\'image: ' . $e->getMessage());
+                    return $this->redirectToRoute('app_article_edit', ['id' => $article->getId()]);
+                }
+            }
+
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Votre article a été modifié avec succès !');
+            return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
+        }
+
+        return $this->render('article/edit.html.twig', [
+            'form' => $form->createView(),
+            'article' => $article
+        ]);
+    }
+    
+    #[Route('/articles/{id}/delete', name: 'app_article_delete', requirements: ['id' => '\d+'])]
+    #[IsGranted('ROLE_USER')]
+    public function delete(Article $article, EntityManagerInterface $entityManager): Response
+    {
+        // Vérifier si l'utilisateur est le propriétaire de l'article
+        if ($this->getUser() !== $article->getSeller()) {
+            $this->addFlash('error', 'Vous n\'êtes pas autorisé à supprimer cet article.');
+            return $this->redirectToRoute('app_article_show', ['id' => $article->getId()]);
+        }
+        
+        // Supprimer l'image associée si elle existe
+        if ($article->getImage()) {
+            $imagePath = $this->getParameter('articles_directory') . '/' . $article->getImage();
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+        }
+        
+        // Supprimer l'article de la base de données
+        $entityManager->remove($article);
+        $entityManager->flush();
+        
+        $this->addFlash('success', 'L\'article a été supprimé avec succès.');
+        return $this->redirectToRoute('app_articles');
+    }
+    
     /**
      * Vérifie si l'extension de fichier est une image valide
      */
