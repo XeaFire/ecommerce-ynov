@@ -42,14 +42,17 @@ class OrderService
         $errorMessages = [];
         
         foreach ($cart->getItems() as $cartItem) {
-            $article = $cartItem->getArticle();
-            // Récupérer l'article frais depuis la base de données pour éviter les problèmes de cache
-            $article = $this->entityManager->getRepository(Article::class)->find($article->getId());
-            
-            if ($article->getQuantity() < $cartItem->getQuantity()) {
-                $stockError = true;
-                $errorMessages[] = 'Stock insuffisant pour l\'article "' . $article->getName() . '". Disponible: ' . $article->getQuantity() . ', Demandé: ' . $cartItem->getQuantity();
+            if ($cartItem->getItemType() === 'article' && $cartItem->getArticle()) {
+                $article = $cartItem->getArticle();
+                // Récupérer l'article frais depuis la base de données pour éviter les problèmes de cache
+                $article = $this->entityManager->getRepository(Article::class)->find($article->getId());
+                
+                if ($article->getQuantity() < $cartItem->getQuantity()) {
+                    $stockError = true;
+                    $errorMessages[] = 'Stock insuffisant pour l\'article "' . $article->getName() . '". Disponible: ' . $article->getQuantity() . ', Demandé: ' . $cartItem->getQuantity();
+                }
             }
+            // Les masterclasses n'ont pas de contrainte de stock
         }
         
         return [$stockError === false, $errorMessages];
@@ -67,8 +70,8 @@ class OrderService
         $errorMessages = [];
         
         foreach ($order->getItems() as $orderItem) {
-            $article = $orderItem->getArticle();
-            if ($article) {
+            if ($orderItem->getItemType() === 'article' && $orderItem->getArticle()) {
+                $article = $orderItem->getArticle();
                 // Récupérer l'article frais depuis la base de données pour éviter les problèmes de cache
                 $article = $this->entityManager->getRepository(Article::class)->find($article->getId());
                 
@@ -77,6 +80,7 @@ class OrderService
                     $errorMessages[] = 'Stock insuffisant pour l\'article "' . $article->getName() . '". Disponible: ' . $article->getQuantity() . ', Demandé: ' . $orderItem->getQuantity();
                 }
             }
+            // Les masterclasses n'ont pas de contrainte de stock
         }
         
         return [$stockError === false, $errorMessages];
@@ -106,8 +110,8 @@ class OrderService
         
         // Si tout est disponible, mettre à jour le stock
         foreach ($order->getItems() as $orderItem) {
-            $article = $orderItem->getArticle();
-            if ($article) {
+            if ($orderItem->getItemType() === 'article' && $orderItem->getArticle()) {
+                $article = $orderItem->getArticle();
                 // Récupérer l'article frais depuis la base de données
                 $article = $this->entityManager->getRepository(Article::class)->find($article->getId());
                 
@@ -115,6 +119,19 @@ class OrderService
                     // Réduire la quantité en stock
                     $newQuantity = max(0, $article->getQuantity() - $orderItem->getQuantity());
                     $article->setQuantity($newQuantity);
+                }
+            }
+            
+            // Pour les masterclasses, ajouter l'accès à l'utilisateur
+            if ($orderItem->getItemType() === 'masterclass' && $orderItem->getMasterclass()) {
+                $masterclass = $orderItem->getMasterclass();
+                $user = $order->getUser();
+                
+                if ($masterclass && $user) {
+                    // Ajouter la masterclass aux achats de l'utilisateur s'il ne l'a pas déjà
+                    if (!$user->getPurchasedMasterclasses()->contains($masterclass)) {
+                        $user->addPurchasedMasterclass($masterclass);
+                    }
                 }
             }
         }

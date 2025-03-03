@@ -195,31 +195,56 @@
                                     <div class="row align-items-center">
                                         <div class="col-md-2 mb-3 mb-md-0">
                                             <div class="cart-item-image-container">
-                                                {% if item.article.image %}
-                                                    <img src="{{ asset('uploads/articles/' ~ item.article.image) }}" class="cart-item-image" alt="{{ item.article.name }}">
+                                                {% if item.itemType == 'article' %}
+                                                    {% if item.article.image %}
+                                                        <img src="{{ asset('uploads/articles/' ~ item.article.image) }}" class="cart-item-image" alt="{{ item.article.name }}">
+                                                    {% else %}
+                                                        <img src="https://via.placeholder.com/400x400?text=Pas+d'image" class="cart-item-image" alt="No image">
+                                                    {% endif %}
                                                 {% else %}
-                                                    <img src="https://via.placeholder.com/400x400?text=Pas+d'image" class="cart-item-image" alt="No image">
+                                                    {% if item.masterclass.image %}
+                                                        <img src="{{ asset('uploads/masterclasses/' ~ item.masterclass.image) }}" class="cart-item-image" alt="{{ item.masterclass.title }}">
+                                                    {% else %}
+                                                        <img src="https://via.placeholder.com/400x400?text=Masterclass" class="cart-item-image" alt="Masterclass">
+                                                    {% endif %}
                                                 {% endif %}
                                             </div>
                                         </div>
                                         <div class="col-md-4 mb-3 mb-md-0">
-                                            <h5 class="text-white">{{ item.article.name }}</h5>
-                                            <p class="text-muted mb-0">Vendeur: {{ item.article.seller.username }}</p>
+                                            {% if item.itemType == 'article' %}
+                                                <h5 class="text-white">{{ item.article.name }}</h5>
+                                                <p class="text-muted mb-0">Vendeur: {{ item.article.seller.username }}</p>
+                                            {% else %}
+                                                <h5 class="text-white">{{ item.masterclass.title }}</h5>
+                                                <p class="text-muted mb-0">Formateur: {{ item.masterclass.author.username }}</p>
+                                            {% endif %}
                                         </div>
                                         <div class="col-md-2 mb-3 mb-md-0">
-                                            <p class="cart-item-price mb-0">{{ item.article.price|number_format(2, ',', ' ') }} €</p>
+                                            {% if item.itemType == 'article' %}
+                                                <p class="cart-item-price mb-0">{{ item.article.price|number_format(2, ',', ' ') }} €</p>
+                                            {% else %}
+                                                <p class="cart-item-price mb-0">{{ item.masterclass.price|number_format(2, ',', ' ') }} €</p>
+                                            {% endif %}
                                         </div>
                                         <div class="col-md-2 mb-3 mb-md-0">
-                                            <form action="{{ path('app_cart_update', {'id': item.id}) }}" method="post" class="quantity-form" data-max-stock="{{ item.article.quantity }}">
-                                                <div class="quantity-control">
-                                                    <button type="button" class="quantity-minus">-</button>
-                                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.article.quantity }}" class="quantity-input">
-                                                    <button type="button" class="quantity-plus">+</button>
-                                                </div>
-                                            </form>
+                                            {% if item.itemType == 'article' %}
+                                                <form action="{{ path('app_cart_update', {'id': item.id}) }}" method="post" class="quantity-form" data-max-stock="{{ item.article.quantity }}">
+                                                    <div class="quantity-control">
+                                                        <button type="button" class="quantity-minus">-</button>
+                                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.article.quantity }}" class="quantity-input">
+                                                        <button type="button" class="quantity-plus">+</button>
+                                                    </div>
+                                                </form>
+                                            {% else %}
+                                                <p class="text-muted mb-0">Quantité: 1</p>
+                                            {% endif %}
                                         </div>
                                         <div class="col-md-1 mb-3 mb-md-0 text-center">
-                                            <p class="cart-item-total mb-0">{{ (item.article.price * item.quantity)|number_format(2, ',', ' ') }} €</p>
+                                            {% if item.itemType == 'article' %}
+                                                <p class="cart-item-total mb-0">{{ (item.article.price * item.quantity)|number_format(2, ',', ' ') }} €</p>
+                                            {% else %}
+                                                <p class="cart-item-total mb-0">{{ item.masterclass.price|number_format(2, ',', ' ') }} €</p>
+                                            {% endif %}
                                         </div>
                                         <div class="col-md-1 text-end">
                                             <a href="{{ path('app_cart_remove', {'id': item.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir retirer cet article du panier ?')">

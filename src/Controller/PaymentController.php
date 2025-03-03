@@ -61,12 +61,22 @@ class PaymentController extends AbstractController
         $order->setTotal($cart->getTotal());
         $order->setReference(uniqid('ORD-'));
 
-        // Ajouter les articles du panier à la commande
+        // Ajouter les articles et masterclasses du panier à la commande
         foreach ($cart->getItems() as $cartItem) {
             $orderItem = new OrderItem();
-            $orderItem->setArticle($cartItem->getArticle());
-            $orderItem->setQuantity($cartItem->getQuantity());
-            $orderItem->setPrice($cartItem->getArticle()->getPrice());
+            
+            if ($cartItem->getItemType() === 'article' && $cartItem->getArticle()) {
+                $orderItem->setArticle($cartItem->getArticle());
+                $orderItem->setQuantity($cartItem->getQuantity());
+                $orderItem->setPrice($cartItem->getArticle()->getPrice());
+                $orderItem->setItemType('article');
+            } elseif ($cartItem->getItemType() === 'masterclass' && $cartItem->getMasterclass()) {
+                $orderItem->setMasterclass($cartItem->getMasterclass());
+                $orderItem->setQuantity(1); // Les masterclasses sont toujours achetées en quantité 1
+                $orderItem->setPrice($cartItem->getMasterclass()->getPrice());
+                $orderItem->setItemType('masterclass');
+            }
+            
             $orderItem->setOrderRef($order);
             
             $entityManager->persist($orderItem);
@@ -82,17 +92,31 @@ class PaymentController extends AbstractController
 
             $lineItems = [];
             foreach ($cart->getItems() as $cartItem) {
-                $lineItems[] = [
-                    'price_data' => [
-                        'currency' => 'eur',
-                        'product_data' => [
-                            'name' => $cartItem->getArticle()->getName(),
-                            'description' => $cartItem->getArticle()->getDescription(),
+                if ($cartItem->getItemType() === 'article' && $cartItem->getArticle()) {
+                    $lineItems[] = [
+                        'price_data' => [
+                            'currency' => 'eur',
+                            'product_data' => [
+                                'name' => $cartItem->getArticle()->getName(),
+                                'description' => $cartItem->getArticle()->getDescription(),
+                            ],
+                            'unit_amount' => $cartItem->getArticle()->getPrice() * 100, // Stripe utilise les centimes
                         ],
-                        'unit_amount' => $cartItem->getArticle()->getPrice() * 100, // Stripe utilise les centimes
-                    ],
-                    'quantity' => $cartItem->getQuantity(),
-                ];
+                        'quantity' => $cartItem->getQuantity(),
+                    ];
+                } elseif ($cartItem->getItemType() === 'masterclass' && $cartItem->getMasterclass()) {
+                    $lineItems[] = [
+                        'price_data' => [
+                            'currency' => 'eur',
+                            'product_data' => [
+                                'name' => 'Masterclass: ' . $cartItem->getMasterclass()->getTitle(),
+                                'description' => $cartItem->getMasterclass()->getDescription(),
+                            ],
+                            'unit_amount' => $cartItem->getMasterclass()->getPrice() * 100, // Stripe utilise les centimes
+                        ],
+                        'quantity' => 1, // Les masterclasses sont toujours achetées en quantité 1
+                    ];
+                }
             }
 
             // Créer la session de paiement Stripe

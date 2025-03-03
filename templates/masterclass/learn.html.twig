@@ -1,0 +1,327 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Apprendre: {{ masterclass.title }}{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .learn-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)),
+                    url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+        padding-bottom: 50px;
+    }
+    
+    .learn-header {
+        margin-bottom: 2rem;
+    }
+    
+    .learn-title {
+        color: var(--primary);
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+    
+    .learn-author {
+        color: #aaa;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .learn-author .certified-badge {
+        margin-left: 10px;
+    }
+    
+    .learn-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .learn-sidebar {
+        background: rgba(10, 10, 10, 0.9);
+        border-right: 1px solid rgba(0, 255, 136, 0.1);
+        padding: 1.5rem;
+    }
+    
+    .learn-progress {
+        margin-bottom: 2rem;
+    }
+    
+    .learn-progress-title {
+        color: #fff;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .learn-progress-bar {
+        height: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 5px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+    
+    .learn-progress-fill {
+        height: 100%;
+        background: var(--primary);
+        border-radius: 5px;
+    }
+    
+    .learn-progress-text {
+        color: #aaa;
+        font-size: 0.9rem;
+        text-align: right;
+    }
+    
+    .learn-pages-title {
+        color: #fff;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .learn-page-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: #fff;
+    }
+    
+    .learn-page-item:hover {
+        background: rgba(0, 255, 136, 0.1);
+        color: var(--primary);
+    }
+    
+    .learn-page-item.active {
+        background: rgba(0, 255, 136, 0.15);
+        color: var(--primary);
+    }
+    
+    .learn-page-number {
+        width: 30px;
+        height: 30px;
+        background: rgba(0, 255, 136, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+    
+    .learn-page-title {
+        flex-grow: 1;
+        font-size: 0.9rem;
+    }
+    
+    .learn-page-status {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 0.5rem;
+    }
+    
+    .learn-page-status.completed {
+        background: var(--primary);
+        color: var(--dark);
+    }
+    
+    .learn-page-status.incomplete {
+        background: rgba(255, 255, 255, 0.1);
+        color: #aaa;
+    }
+    
+    .learn-content {
+        padding: 2rem;
+    }
+    
+    .learn-welcome {
+        text-align: center;
+        padding: 3rem 0;
+    }
+    
+    .learn-welcome-icon {
+        font-size: 4rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+    }
+    
+    .learn-welcome-title {
+        color: #fff;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .learn-welcome-text {
+        color: #aaa;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .learn-stats {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    
+    .learn-stat {
+        background: rgba(0, 255, 136, 0.1);
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        text-align: center;
+        margin: 0 1rem;
+    }
+    
+    .learn-stat h4 {
+        color: var(--primary);
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .learn-stat p {
+        color: #aaa;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="learn-section">
+    <div class="container">
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+        <div class="learn-header">
+            <h1 class="learn-title">{{ masterclass.title }}</h1>
+            <div class="learn-author">
+                Par {{ masterclass.author.username }}
+                {% if masterclass.author.isCertified %}
+                    <span class="certified-badge">
+                        <i class="fas fa-check-circle"></i> Certifié
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="learn-card">
+            <div class="row g-0">
+                <div class="col-md-4 col-lg-3">
+                    <div class="learn-sidebar">
+                        <div class="learn-progress">
+                            <h3 class="learn-progress-title">Votre progression</h3>
+                            
+                            {% set completedPages = progress.completedPages|length %}
+                            {% set totalPages = masterclass.pages|length %}
+                            {% set progressPercent = totalPages > 0 ? (completedPages / totalPages * 100)|round : 0 %}
+                            
+                            <div class="learn-progress-bar">
+                                <div class="learn-progress-fill" style="width: {{ progressPercent }}%"></div>
+                            </div>
+                            <div class="learn-progress-text">{{ progressPercent }}% terminé</div>
+                        </div>
+                        
+                        <h3 class="learn-pages-title">Contenu du cours</h3>
+                        
+                        {% if masterclass.pages|length > 0 %}
+                            <div class="learn-pages-list">
+                                {% for page in masterclass.pages %}
+                                    <a href="{{ path('app_masterclass_page', {'id': masterclass.id, 'pageId': page.id}) }}" class="learn-page-item">
+                                        <div class="learn-page-number">{{ page.position }}</div>
+                                        <div class="learn-page-title">{{ page.title }}</div>
+                                        <div class="learn-page-status {% if page.id in progress.completedPages %}completed{% else %}incomplete{% endif %}">
+                                            <i class="fas {% if page.id in progress.completedPages %}fa-check{% else %}fa-circle{% endif %}"></i>
+                                        </div>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Aucune page disponible pour le moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-8 col-lg-9">
+                    <div class="learn-content">
+                        <div class="learn-welcome">
+                            <div class="learn-welcome-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h2 class="learn-welcome-title">Bienvenue dans cette masterclass !</h2>
+                            <p class="learn-welcome-text">
+                                Vous avez accès à l'intégralité du contenu de cette masterclass. 
+                                Naviguez à travers les différentes pages pour apprendre à votre rythme.
+                                Marquez les pages comme terminées pour suivre votre progression.
+                            </p>
+                            
+                            <div class="learn-stats">
+                                <div class="learn-stat">
+                                    <h4>{{ masterclass.pages|length }}</h4>
+                                    <p>Pages de contenu</p>
+                                </div>
+                                <div class="learn-stat">
+                                    <h4>{{ completedPages }}</h4>
+                                    <p>Pages terminées</p>
+                                </div>
+                                <div class="learn-stat">
+                                    <h4>{{ totalPages - completedPages }}</h4>
+                                    <p>Pages restantes</p>
+                                </div>
+                            </div>
+                            
+                            {% if masterclass.pages|length > 0 %}
+                                {% set firstPage = masterclass.pages|first %}
+                                <a href="{{ path('app_masterclass_page', {'id': masterclass.id, 'pageId': firstPage.id}) }}" class="btn btn-neon">
+                                    <i class="fas fa-play-circle me-2"></i>Commencer l'apprentissage
+                                </a>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Le contenu de cette masterclass est en cours de création. Revenez bientôt !
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

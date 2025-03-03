@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Article;
 use App\Entity\Cart;
 use App\Entity\CartItem;
+use App\Entity\Masterclass;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -167,6 +168,57 @@ class CartController extends AbstractController
             $this->addFlash('success', 'Votre panier a été vidé !');
         }
         
+        return $this->redirectToRoute('app_cart');
+    }
+
+    #[Route('/add-masterclass/{id}', name: 'app_cart_add_masterclass')]
+    public function addMasterclass(Masterclass $masterclass, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        $cart = $user->getCart();
+
+        // Si l'utilisateur n'a pas encore de panier, on en crée un
+        if (!$cart) {
+            $cart = new Cart();
+            $cart->setUser($user);
+            $entityManager->persist($cart);
+            $entityManager->flush(); // Flush pour s'assurer que le panier a un ID
+        }
+
+        // Vérifier si l'utilisateur a déjà acheté cette masterclass
+        if ($user->hasPurchasedMasterclass($masterclass)) {
+            $this->addFlash('info', 'Vous avez déjà acheté cette masterclass.');
+            return $this->redirectToRoute('app_masterclass_learn', ['id' => $masterclass->getId()]);
+        }
+
+        // Vérifier si la masterclass est déjà dans le panier
+        $existingItem = null;
+        foreach ($cart->getItems() as $item) {
+            if ($item->getItemType() === 'masterclass' && $item->getMasterclass() && $item->getMasterclass()->getId() === $masterclass->getId()) {
+                $existingItem = $item;
+                break;
+            }
+        }
+
+        if ($existingItem) {
+            // Si la masterclass est déjà dans le panier, on ne fait rien
+            $this->addFlash('info', 'Cette masterclass est déjà dans votre panier.');
+        } else {
+            // Sinon, on crée un nouvel élément
+            $cartItem = new CartItem();
+            $cartItem->setMasterclass($masterclass);
+            $cartItem->setQuantity(1); // Les masterclasses sont toujours achetées en quantité 1
+            $cartItem->setCart($cart);
+            $entityManager->persist($cartItem);
+            
+            // Mettre à jour la date de mise à jour du panier
+            $cart->setUpdatedAt(new \DateTimeImmutable());
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Masterclass ajoutée au panier !');
+        }
+
+        // Rediriger vers le panier
         return $this->redirectToRoute('app_cart');
     }
 }

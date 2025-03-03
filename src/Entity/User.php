@@ -57,6 +57,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
+    #[ORM\Column(type: "boolean", options: ["default" => false])]
+    private bool $isCertified = false;
+
     #[ORM\OneToMany(mappedBy: 'seller', targetEntity: Article::class, orphanRemoval: true)]
     private Collection $articles;
 
@@ -66,12 +69,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Order::class, orphanRemoval: true)]
     private Collection $orders;
 
+    #[ORM\OneToMany(mappedBy: 'author', targetEntity: Masterclass::class, orphanRemoval: true)]
+    private Collection $masterclasses;
+
+    #[ORM\ManyToMany(targetEntity: Masterclass::class, mappedBy: 'students')]
+    private Collection $purchasedMasterclasses;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: MasterclassProgress::class, orphanRemoval: true)]
+    private Collection $masterclassProgress;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->roles = ['ROLE_USER'];
         $this->articles = new ArrayCollection();
         $this->orders = new ArrayCollection();
+        $this->masterclasses = new ArrayCollection();
+        $this->purchasedMasterclasses = new ArrayCollection();
+        $this->masterclassProgress = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -187,6 +202,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->createdAt;
     }
 
+    public function getIsCertified(): bool
+    {
+        return $this->isCertified;
+    }
+
+    public function setIsCertified(bool $isCertified): static
+    {
+        $this->isCertified = $isCertified;
+        
+        // Ajouter ou retirer le rôle ROLE_CERTIFIED en fonction du statut de certification
+        $roles = $this->getRoles();
+        
+        if ($isCertified) {
+            // Ajouter le rôle ROLE_CERTIFIED s'il n'existe pas déjà
+            if (!in_array('ROLE_CERTIFIED', $roles)) {
+                $roles[] = 'ROLE_CERTIFIED';
+                $this->setRoles($roles);
+            }
+        } else {
+            // Retirer le rôle ROLE_CERTIFIED s'il existe
+            if (in_array('ROLE_CERTIFIED', $roles)) {
+                $roles = array_diff($roles, ['ROLE_CERTIFIED']);
+                $this->setRoles($roles);
+            }
+        }
+        
+        return $this;
+    }
+
     /**
      * @return Collection<int, Article>
      */
@@ -262,5 +306,108 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Masterclass>
+     */
+    public function getMasterclasses(): Collection
+    {
+        return $this->masterclasses;
+    }
+
+    public function addMasterclass(Masterclass $masterclass): static
+    {
+        if (!$this->masterclasses->contains($masterclass)) {
+            $this->masterclasses->add($masterclass);
+            $masterclass->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMasterclass(Masterclass $masterclass): static
+    {
+        if ($this->masterclasses->removeElement($masterclass)) {
+            // set the owning side to null (unless already changed)
+            if ($masterclass->getAuthor() === $this) {
+                $masterclass->setAuthor(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Masterclass>
+     */
+    public function getPurchasedMasterclasses(): Collection
+    {
+        return $this->purchasedMasterclasses;
+    }
+
+    public function addPurchasedMasterclass(Masterclass $masterclass): static
+    {
+        if (!$this->purchasedMasterclasses->contains($masterclass)) {
+            $this->purchasedMasterclasses->add($masterclass);
+            $masterclass->addStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function removePurchasedMasterclass(Masterclass $masterclass): static
+    {
+        if ($this->purchasedMasterclasses->removeElement($masterclass)) {
+            $masterclass->removeStudent($this);
+        }
+
+        return $this;
+    }
+
+    public function hasPurchasedMasterclass(Masterclass $masterclass): bool
+    {
+        return $this->purchasedMasterclasses->contains($masterclass);
+    }
+
+    /**
+     * @return Collection<int, MasterclassProgress>
+     */
+    public function getMasterclassProgress(): Collection
+    {
+        return $this->masterclassProgress;
+    }
+
+    public function addMasterclassProgress(MasterclassProgress $progress): static
+    {
+        if (!$this->masterclassProgress->contains($progress)) {
+            $this->masterclassProgress->add($progress);
+            $progress->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMasterclassProgress(MasterclassProgress $progress): static
+    {
+        if ($this->masterclassProgress->removeElement($progress)) {
+            // set the owning side to null (unless already changed)
+            if ($progress->getUser() === $this) {
+                $progress->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getProgressForMasterclass(Masterclass $masterclass): ?MasterclassProgress
+    {
+        foreach ($this->masterclassProgress as $progress) {
+            if ($progress->getMasterclass() === $masterclass) {
+                return $progress;
+            }
+        }
+        
+        return null;
     }
 }

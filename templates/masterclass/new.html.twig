@@ -1,0 +1,214 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une nouvelle Masterclass{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .new-masterclass-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+        padding-bottom: 50px;
+    }
+    
+    .new-masterclass-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        padding: 2rem;
+    }
+    
+    .new-masterclass-title {
+        color: var(--primary);
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+    
+    .form-label {
+        color: #e0e0e0;
+        font-weight: 500;
+    }
+    
+    .form-control, .form-select {
+        background-color: rgba(30, 30, 30, 0.8) !important;
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        color: white;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(30, 30, 30, 0.9) !important;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(0, 255, 136, 0.25);
+        color: white;
+    }
+    
+    .form-text {
+        color: #aaa;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .form-section-title {
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        font-size: 1.2rem;
+    }
+    
+    .image-preview {
+        width: 100%;
+        height: 200px;
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    
+    .image-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    .image-preview-placeholder {
+        color: #aaa;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="new-masterclass-section">
+    <div class="container">
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="new-masterclass-card">
+                    <h1 class="new-masterclass-title">Créer une nouvelle Masterclass</h1>
+                    
+                    {{ form_start(form) }}
+                        <div class="form-section">
+                            <h3 class="form-section-title">Informations générales</h3>
+                            
+                            <div class="mb-3">
+                                {{ form_label(form.title) }}
+                                {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Titre de votre masterclass'}}) }}
+                                {{ form_errors(form.title) }}
+                                <div class="form-text">Choisissez un titre accrocheur qui décrit clairement le sujet de votre masterclass.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form_label(form.description) }}
+                                {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 5, 'placeholder': 'Description détaillée de votre masterclass...'}}) }}
+                                {{ form_errors(form.description) }}
+                                <div class="form-text">Décrivez en détail ce que les étudiants vont apprendre dans votre masterclass.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3 class="form-section-title">Image et prix</h3>
+                            
+                            <div class="mb-3">
+                                <div class="image-preview" id="imagePreview">
+                                    <div class="image-preview-placeholder">
+                                        <i class="fas fa-image fa-2x mb-2"></i>
+                                        <p>L'image sera affichée ici</p>
+                                    </div>
+                                </div>
+                                
+                                {{ form_label(form.imageFile) }}
+                                {{ form_widget(form.imageFile, {'attr': {'class': 'form-control'}}) }}
+                                {{ form_errors(form.imageFile) }}
+                                <div class="form-text">Choisissez une image attrayante qui représente le sujet de votre masterclass. Format recommandé: 16:9, minimum 1280x720px.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form_label(form.price) }}
+                                <div class="input-group">
+                                    {{ form_widget(form.price, {'attr': {'class': 'form-control', 'placeholder': '0.00'}}) }}
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                {{ form_errors(form.price) }}
+                                <div class="form-text">Définissez un prix juste pour votre masterclass en fonction de la valeur que vous apportez.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-neon">
+                                <i class="fas fa-save me-2"></i>Créer la masterclass
+                            </button>
+                            <a href="{{ path('app_masterclass_index') }}" class="btn btn-outline-light">
+                                <i class="fas fa-arrow-left me-2"></i>Retour à la liste
+                            </a>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prévisualisation de l'image
+        const imageInput = document.querySelector('input[type="file"]');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        if (imageInput) {
+            imageInput.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.innerHTML = `<img src="${e.target.result}" alt="Prévisualisation">`;
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    imagePreview.innerHTML = `
+                        <div class="image-preview-placeholder">
+                            <i class="fas fa-image fa-2x mb-2"></i>
+                            <p>L'image sera affichée ici</p>
+                        </div>
+                    `;
+                }
+            });
+        }
+    });
+</script>
+{% endblock %} 

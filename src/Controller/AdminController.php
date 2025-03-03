@@ -91,6 +91,24 @@ class AdminController extends AbstractController
         return $this->redirectToRoute('app_admin_users');
     }
     
+    #[Route('/users/{id}/toggle-certification', name: 'app_admin_toggle_certification', methods: ['POST'])]
+    public function toggleUserCertification(User $user, EntityManagerInterface $entityManager): Response
+    {
+        $isCertified = $user->getIsCertified();
+        
+        // Inverser le statut de certification
+        $user->setIsCertified(!$isCertified);
+        $entityManager->flush();
+        
+        if ($user->getIsCertified()) {
+            $this->addFlash('success', 'L\'utilisateur ' . $user->getUsername() . ' a été certifié avec succès.');
+        } else {
+            $this->addFlash('success', 'La certification de l\'utilisateur ' . $user->getUsername() . ' a été retirée.');
+        }
+        
+        return $this->redirectToRoute('app_admin_users');
+    }
+    
     #[Route('/articles', name: 'app_admin_articles')]
     public function manageArticles(ArticleRepository $articleRepository): Response
     {

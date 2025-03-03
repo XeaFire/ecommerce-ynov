@@ -1,0 +1,307 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ masterclass.title }} - Masterclass{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .masterclass-detail-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+        padding-bottom: 50px;
+    }
+    
+    .masterclass-detail-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .masterclass-detail-image {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+    }
+    
+    .masterclass-detail-content {
+        padding: 2rem;
+    }
+    
+    .masterclass-detail-title {
+        color: var(--primary);
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+    
+    .masterclass-detail-meta {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        color: #aaa;
+    }
+    
+    .masterclass-detail-author {
+        display: flex;
+        align-items: center;
+        margin-right: 2rem;
+    }
+    
+    .masterclass-detail-author img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 10px;
+        object-fit: cover;
+    }
+    
+    .masterclass-detail-date {
+        font-size: 0.9rem;
+    }
+    
+    .masterclass-detail-description {
+        color: #fff;
+        margin-bottom: 2rem;
+        line-height: 1.7;
+    }
+    
+    .masterclass-detail-stats {
+        display: flex;
+        margin-bottom: 2rem;
+    }
+    
+    .masterclass-detail-stat {
+        background: rgba(0, 255, 136, 0.1);
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        margin-right: 1rem;
+        flex: 1;
+    }
+    
+    .masterclass-detail-stat h4 {
+        color: var(--primary);
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .masterclass-detail-stat p {
+        color: #aaa;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .masterclass-detail-price {
+        background: rgba(0, 0, 0, 0.5);
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(0, 255, 136, 0.1);
+    }
+    
+    .masterclass-detail-price-amount {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #fff;
+        margin-bottom: 1rem;
+    }
+    
+    .masterclass-detail-price-text {
+        color: #aaa;
+        margin-bottom: 1.5rem;
+    }
+    
+    .masterclass-detail-pages {
+        margin-top: 3rem;
+    }
+    
+    .masterclass-detail-pages-title {
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+    }
+    
+    .masterclass-page-item {
+        background: rgba(30, 30, 30, 0.8);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .masterclass-page-number {
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 255, 136, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: var(--primary);
+        margin-right: 1rem;
+    }
+    
+    .masterclass-page-title {
+        flex-grow: 1;
+        color: #fff;
+        font-weight: 500;
+    }
+    
+    .masterclass-page-preview {
+        color: #aaa;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="masterclass-detail-section">
+    <div class="container">
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+        <div class="masterclass-detail-card">
+            {% if masterclass.image %}
+                <img src="{{ asset('uploads/masterclasses/' ~ masterclass.image) }}" class="masterclass-detail-image" alt="{{ masterclass.title }}">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="masterclass-detail-image" alt="Masterclass">
+            {% endif %}
+            
+            <div class="masterclass-detail-content">
+                <h1 class="masterclass-detail-title">{{ masterclass.title }}</h1>
+                
+                <div class="masterclass-detail-meta">
+                    <div class="masterclass-detail-author">
+                        <div class="user-avatar">
+                            {{ masterclass.author.username|first|upper }}
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center">
+                                {{ masterclass.author.username }}
+                                {% if masterclass.author.isCertified %}
+                                    <span class="certified-badge ms-2">
+                                        <i class="fas fa-check-circle"></i> Certifié
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="masterclass-detail-date">
+                                <small>Publié le {{ masterclass.createdAt|date('d/m/Y') }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="masterclass-detail-description">
+                            {{ masterclass.description|nl2br }}
+                        </div>
+                        
+                        <div class="masterclass-detail-stats">
+                            <div class="masterclass-detail-stat">
+                                <h4>{{ masterclass.pages|length }}</h4>
+                                <p>Pages de contenu</p>
+                            </div>
+                            <div class="masterclass-detail-stat">
+                                <h4>{{ masterclass.students|length }}</h4>
+                                <p>Étudiants inscrits</p>
+                            </div>
+                            <div class="masterclass-detail-stat">
+                                <h4>100%</h4>
+                                <p>Accès à vie</p>
+                            </div>
+                        </div>
+                        
+                        {% if masterclass.pages|length > 0 %}
+                            <div class="masterclass-detail-pages">
+                                <h3 class="masterclass-detail-pages-title">Aperçu du contenu</h3>
+                                
+                                {% for page in masterclass.pages|slice(0, 3) %}
+                                    <div class="masterclass-page-item">
+                                        <div class="masterclass-page-number">{{ page.position }}</div>
+                                        <div class="masterclass-page-title">{{ page.title }}</div>
+                                        {% if app.user and app.user.hasPurchasedMasterclass(masterclass) %}
+                                            <a href="{{ path('app_masterclass_page', {'id': masterclass.id, 'pageId': page.id}) }}" class="btn btn-sm btn-outline-light">
+                                                <i class="fas fa-eye me-1"></i> Voir
+                                            </a>
+                                        {% else %}
+                                            <span class="masterclass-page-preview">Aperçu</span>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                                
+                                {% if masterclass.pages|length > 3 %}
+                                    <div class="text-center mt-3">
+                                        <p class="text-muted">Et {{ masterclass.pages|length - 3 }} autres pages...</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="masterclass-detail-price">
+                            <div class="masterclass-detail-price-amount">{{ masterclass.price|number_format(2, ',', ' ') }} €</div>
+                            <div class="masterclass-detail-price-text">Accès complet et illimité à cette masterclass</div>
+                            
+                            {% if app.user %}
+                                {% if app.user.hasPurchasedMasterclass(masterclass) %}
+                                    <a href="{{ path('app_masterclass_learn', {'id': masterclass.id}) }}" class="btn btn-neon w-100">
+                                        <i class="fas fa-play-circle me-2"></i>Accéder au contenu
+                                    </a>
+                                {% else %}
+                                    <a href="{{ path('app_cart_add_masterclass', {'id': masterclass.id}) }}" class="btn btn-neon w-100">
+                                        <i class="fas fa-shopping-cart me-2"></i>Ajouter au panier
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <a href="{{ path('app_login') }}" class="btn btn-neon w-100">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Connectez-vous pour acheter
+                                </a>
+                            {% endif %}
+                            
+                            {% if is_granted('ROLE_ADMIN') or (app.user and masterclass.author == app.user) %}
+                                <div class="mt-3">
+                                    <a href="{{ path('app_masterclass_edit', {'id': masterclass.id}) }}" class="btn btn-outline-light w-100 mb-2">
+                                        <i class="fas fa-edit me-2"></i>Modifier la masterclass
+                                    </a>
+                                    <a href="{{ path('app_masterclass_manage_pages', {'id': masterclass.id}) }}" class="btn btn-outline-primary w-100">
+                                        <i class="fas fa-list me-2"></i>Gérer les pages
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

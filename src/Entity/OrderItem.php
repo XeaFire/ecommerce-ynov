@@ -18,7 +18,7 @@ class OrderItem
     private ?Order $orderRef = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Article $article = null;
 
     #[ORM\Column]
@@ -27,8 +27,15 @@ class OrderItem
     #[ORM\Column]
     private ?float $price = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $articleName = null;
+    
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Masterclass $masterclass = null;
+    
+    #[ORM\Column(length: 20)]
+    private string $itemType = 'article';
 
     public function __construct()
     {
@@ -65,6 +72,26 @@ class OrderItem
         if ($article) {
             $this->setArticleName($article->getName());
             $this->setPrice($article->getPrice());
+            $this->setItemType('article');
+        }
+
+        return $this;
+    }
+    
+    public function getMasterclass(): ?Masterclass
+    {
+        return $this->masterclass;
+    }
+
+    public function setMasterclass(?Masterclass $masterclass): static
+    {
+        $this->masterclass = $masterclass;
+        
+        // Stocker le nom et le prix de la masterclass au moment de la commande
+        if ($masterclass) {
+            $this->setArticleName('Masterclass: ' . $masterclass->getTitle());
+            $this->setPrice($masterclass->getPrice());
+            $this->setItemType('masterclass');
         }
 
         return $this;
@@ -102,6 +129,18 @@ class OrderItem
     public function setArticleName(string $articleName): static
     {
         $this->articleName = $articleName;
+
+        return $this;
+    }
+    
+    public function getItemType(): string
+    {
+        return $this->itemType;
+    }
+
+    public function setItemType(string $itemType): static
+    {
+        $this->itemType = $itemType;
 
         return $this;
     }

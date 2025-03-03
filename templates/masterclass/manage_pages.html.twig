@@ -1,0 +1,451 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gérer les pages - {{ masterclass.title }}{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .manage-pages-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+        padding-bottom: 50px;
+    }
+    
+    .manage-pages-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .manage-pages-title {
+        color: var(--primary);
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+    
+    .manage-pages-subtitle {
+        color: #aaa;
+        margin-bottom: 2rem;
+    }
+    
+    .page-item {
+        background: rgba(30, 30, 30, 0.7);
+        border-radius: 8px;
+        margin-bottom: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .page-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .page-item-header {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        background: rgba(40, 40, 40, 0.7);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .sortable-handle {
+        cursor: grab;
+        margin-right: 15px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .page-position {
+        background: rgba(0, 0, 0, 0.3);
+        color: rgba(255, 255, 255, 0.7);
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 0.9rem;
+    }
+    
+    .page-title {
+        flex-grow: 1;
+        font-weight: 500;
+        color: white;
+    }
+    
+    .page-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .page-preview {
+        padding: 15px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+    }
+    
+    .add-page-form {
+        margin-top: 20px;
+    }
+    
+    .add-page-title {
+        color: var(--primary);
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        color: #e0e0e0;
+        font-weight: 500;
+    }
+    
+    .form-control, .form-select {
+        background-color: rgba(30, 30, 30, 0.8) !important;
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        color: white;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(30, 30, 30, 0.9) !important;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(0, 255, 136, 0.25);
+        color: white;
+    }
+    
+    .form-text {
+        color: #aaa;
+    }
+    
+    .empty-pages {
+        text-align: center;
+        padding: 3rem 0;
+    }
+    
+    .empty-pages i {
+        font-size: 3rem;
+        color: rgba(0, 255, 136, 0.2);
+        margin-bottom: 1rem;
+    }
+    
+    .empty-pages h3 {
+        color: #fff;
+        margin-bottom: 1rem;
+    }
+    
+    .empty-pages p {
+        color: #aaa;
+        margin-bottom: 1.5rem;
+    }
+    
+    .sortable-ghost {
+        opacity: 0.5;
+    }
+    
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+    
+    .modal.show {
+        display: flex !important;
+    }
+    
+    .modal-dialog {
+        max-width: 500px;
+        margin: 0 auto;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .modal-content {
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+    
+    .modal-backdrop {
+        display: none !important;
+    }
+    
+    #saveOrder {
+        transition: all 0.3s ease;
+        color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="manage-pages-section">
+    <div class="container">
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="manage-pages-card">
+                    <h1 class="manage-pages-title">Gérer les pages</h1>
+                    <p class="manage-pages-subtitle">Masterclass: {{ masterclass.title }}</p>
+                    
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="h4 text-white mb-0">Ajouter une nouvelle page</h2>
+                        </div>
+                        
+                        <div class="add-page-form">
+                            {{ form_start(form) }}
+                                <div class="row">
+                                    <div class="col-md-8 mb-3">
+                                        {{ form_label(form.title) }}
+                                        {{ form_widget(form.title, {'attr': {'class': 'form-control', 'placeholder': 'Titre de la page'}}) }}
+                                        {{ form_errors(form.title) }}
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-3">
+                                        {{ form_label(form.position) }}
+                                        {{ form_widget(form.position, {'attr': {'class': 'form-control', 'placeholder': 'Position'}}) }}
+                                        {{ form_errors(form.position) }}
+                                        <div class="form-text">Ordre d'affichage de la page</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    {{ form_label(form.content) }}
+                                    {{ form_widget(form.content, {'attr': {'class': 'form-control', 'rows': 10, 'placeholder': 'Contenu de la page...'}}) }}
+                                    {{ form_errors(form.content) }}
+                                    <div class="form-text">Vous pouvez utiliser du HTML pour formater votre contenu.</div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-neon">
+                                        <i class="fas fa-plus-circle me-2"></i>Ajouter la page
+                                    </button>
+                                </div>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h2 class="h4 text-white mb-0">Pages existantes</h2>
+                            <div>
+                                <button id="saveOrder" class="btn btn-sm btn-outline-primary d-none">
+                                    <i class="fas fa-save me-1"></i>Enregistrer l'ordre
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {% if masterclass.pages|length > 0 %}
+                            <div id="pagesList">
+                                {% for page in masterclass.pages %}
+                                    <div class="page-item" data-id="{{ page.id }}">
+                                        <div class="page-item-header">
+                                            <div class="sortable-handle">
+                                                <i class="fas fa-grip-vertical"></i>
+                                            </div>
+                                            <div class="page-position">{{ page.position }}</div>
+                                            <div class="page-title">{{ page.title }}</div>
+                                            <div class="page-actions">
+                                                <a href="{{ path('app_masterclass_edit_page', {'id': masterclass.id, 'pageId': page.id}) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deletePageModal{{ page.id }}">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="page-preview">
+                                            {{ page.content|striptags|slice(0, 150) }}{% if page.content|length > 150 %}...{% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Modal de confirmation de suppression -->
+                                    <div class="modal" id="deletePageModal{{ page.id }}" tabindex="-1" aria-labelledby="deletePageModalLabel{{ page.id }}" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content bg-dark text-white">
+                                                <div class="modal-header border-secondary">
+                                                    <h5 class="modal-title" id="deletePageModalLabel{{ page.id }}">Confirmer la suppression</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Êtes-vous sûr de vouloir supprimer la page <strong>{{ page.title }}</strong> ?</p>
+                                                    <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Cette action est irréversible.</p>
+                                                </div>
+                                                <div class="modal-footer border-secondary">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                                                    <a href="{{ path('app_masterclass_delete_page', {'id': masterclass.id, 'pageId': page.id}) }}" class="btn btn-danger">
+                                                        <i class="fas fa-trash-alt me-2"></i>Supprimer définitivement
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-pages">
+                                <i class="fas fa-file-alt"></i>
+                                <h3>Aucune page créée</h3>
+                                <p>Commencez par ajouter une première page à votre masterclass.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ path('app_masterclass_edit', {'id': masterclass.id}) }}" class="btn btn-outline-light">
+                            <i class="fas fa-edit me-2"></i>Modifier la masterclass
+                        </a>
+                        <a href="{{ path('app_masterclass_show', {'id': masterclass.id}) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-eye me-2"></i>Voir la masterclass
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion du tri des pages
+        const pagesList = document.getElementById('pagesList');
+        const saveOrderButton = document.getElementById('saveOrder');
+        
+        // Gestion simplifiée des modales sans backdrop
+        const deleteButtons = document.querySelectorAll('[data-bs-toggle="modal"]');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Récupérer l'ID de la modale
+                const targetId = this.getAttribute('data-bs-target');
+                const modalElement = document.querySelector(targetId);
+                
+                // Supprimer tous les backdrops existants
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                
+                // Afficher la modale sans backdrop
+                modalElement.style.display = 'block';
+                modalElement.classList.add('show');
+                
+                // Gérer la fermeture de la modale
+                const closeButtons = modalElement.querySelectorAll('[data-bs-dismiss="modal"]');
+                closeButtons.forEach(closeBtn => {
+                    closeBtn.addEventListener('click', function() {
+                        modalElement.style.display = 'none';
+                        modalElement.classList.remove('show');
+                    });
+                });
+            });
+        });
+        
+        if (pagesList) {
+            const sortable = new Sortable(pagesList, {
+                handle: '.sortable-handle',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onEnd: function() {
+                    // Afficher le bouton d'enregistrement
+                    saveOrderButton.classList.remove('d-none');
+                    
+                    // Mettre à jour les numéros de position affichés
+                    updatePositionNumbers();
+                }
+            });
+            
+            // Fonction pour mettre à jour les numéros de position affichés
+            function updatePositionNumbers() {
+                const pageItems = pagesList.querySelectorAll('.page-item');
+                pageItems.forEach((item, index) => {
+                    const positionElement = item.querySelector('.page-position');
+                    if (positionElement) {
+                        positionElement.textContent = index + 1;
+                    }
+                });
+            }
+            
+            // Gestion du clic sur le bouton d'enregistrement
+            if (saveOrderButton) {
+                saveOrderButton.addEventListener('click', function() {
+                    const pageItems = pagesList.querySelectorAll('.page-item');
+                    const orderData = [];
+                    
+                    pageItems.forEach((item, index) => {
+                        const pageId = item.getAttribute('data-id');
+                        orderData.push({
+                            id: pageId,
+                            position: index + 1
+                        });
+                    });
+                    
+                    // Envoyer les données au serveur
+                    fetch('{{ path('app_masterclass_update_pages_order', {'id': masterclass.id}) }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token('update-order') }}'
+                        },
+                        body: JSON.stringify(orderData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Masquer le bouton d'enregistrement
+                            saveOrderButton.classList.add('d-none');
+                            
+                            // Afficher un message de succès
+                            const alertHtml = `
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    L'ordre des pages a été mis à jour avec succès.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            `;
+                            const container = document.querySelector('.container');
+                            container.insertAdjacentHTML('afterbegin', alertHtml);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur:', error);
+                    });
+                });
+            }
+        }
+    });
+</script>
+{% endblock %} 

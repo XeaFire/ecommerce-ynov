@@ -18,14 +18,21 @@ class CartItem
     private ?Cart $cart = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Article $article = null;
+    
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Masterclass $masterclass = null;
 
     #[ORM\Column]
     private ?int $quantity = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $addedAt = null;
+    
+    #[ORM\Column(length: 20)]
+    private ?string $itemType = null;
 
     public function __construct()
     {
@@ -58,6 +65,26 @@ class CartItem
     public function setArticle(?Article $article): static
     {
         $this->article = $article;
+        if ($article) {
+            $this->setItemType('article');
+            $this->masterclass = null;
+        }
+
+        return $this;
+    }
+    
+    public function getMasterclass(): ?Masterclass
+    {
+        return $this->masterclass;
+    }
+
+    public function setMasterclass(?Masterclass $masterclass): static
+    {
+        $this->masterclass = $masterclass;
+        if ($masterclass) {
+            $this->setItemType('masterclass');
+            $this->article = null;
+        }
 
         return $this;
     }
@@ -78,20 +105,72 @@ class CartItem
     {
         return $this->addedAt;
     }
+    
+    public function getItemType(): ?string
+    {
+        return $this->itemType;
+    }
+
+    public function setItemType(string $itemType): static
+    {
+        $this->itemType = $itemType;
+
+        return $this;
+    }
+    
+    /**
+     * Récupère le nom de l'élément (article ou masterclass)
+     */
+    public function getName(): string
+    {
+        if ($this->itemType === 'article' && $this->article) {
+            return $this->article->getName();
+        } elseif ($this->itemType === 'masterclass' && $this->masterclass) {
+            return $this->masterclass->getTitle();
+        }
+        
+        return 'Élément inconnu';
+    }
 
     /**
      * Calcule le total de cet élément du panier (prix * quantité)
      */
     public function getTotal(): float
     {
-        return $this->getArticle()->getPrice() * $this->getQuantity();
+        if ($this->itemType === 'article' && $this->article) {
+            return $this->article->getPrice() * $this->quantity;
+        } elseif ($this->itemType === 'masterclass' && $this->masterclass) {
+            return $this->masterclass->getPrice(); // Les masterclasses sont toujours achetées en quantité 1
+        }
+        
+        return 0;
+    }
+    
+    /**
+     * Récupère le prix unitaire de l'élément
+     */
+    public function getUnitPrice(): float
+    {
+        if ($this->itemType === 'article' && $this->article) {
+            return $this->article->getPrice();
+        } elseif ($this->itemType === 'masterclass' && $this->masterclass) {
+            return $this->masterclass->getPrice();
+        }
+        
+        return 0;
     }
 
     /**
-     * Vérifie si cet élément est identique à un autre (même article)
+     * Vérifie si cet élément est identique à un autre (même article ou même masterclass)
      */
     public function equals(CartItem $item): bool
     {
-        return $this->getArticle()->getId() === $item->getArticle()->getId();
+        if ($this->itemType === 'article' && $item->getItemType() === 'article') {
+            return $this->article && $item->getArticle() && $this->article->getId() === $item->getArticle()->getId();
+        } elseif ($this->itemType === 'masterclass' && $item->getItemType() === 'masterclass') {
+            return $this->masterclass && $item->getMasterclass() && $this->masterclass->getId() === $item->getMasterclass()->getId();
+        }
+        
+        return false;
     }
 }

@@ -39,6 +39,22 @@
         text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
     }
 
+    .certified-badge {
+        background-color: #00c853;
+        color: white;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 50px;
+        margin-left: 10px;
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 0 10px rgba(0, 200, 83, 0.5);
+    }
+
+    .certified-badge i {
+        margin-right: 5px;
+    }
+
     .account-email {
         color: var(--secondary);
         font-size: 1rem;
@@ -248,7 +264,14 @@
         <div class="account-card p-4 p-md-5">
             <div class="account-header d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="account-username">{{ user.username }}</h1>
+                    <h1 class="account-username">
+                        {{ user.username }}
+                        {% if user.isCertified %}
+                            <span class="certified-badge">
+                                <i class="fas fa-check-circle"></i> Certifié
+                            </span>
+                        {% endif %}
+                    </h1>
                     <p class="account-email">{{ user.email }}</p>
                 </div>
                 {% if isOwnAccount %}

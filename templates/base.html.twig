@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}Leveling Up - Esport Store{% endblock %}</title>
+        <title>{% block title %}Leveling Up - esport Store{% endblock %}</title>
         
         {# Fonts #}
         <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -76,6 +76,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ path('app_articles') }}">Articles</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_masterclass_index') }}">Masterclass</a>
+                        </li>
                         {% if is_granted('ROLE_ADMIN') %}
                         <li class="nav-item">
                             <a class="nav-link text-primary" href="{{ path('app_admin_dashboard') }}">
@@ -93,6 +96,9 @@
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="{{ path('app_account') }}"><i class="fas fa-user me-2"></i>Mon profil</a></li>
                                     <li><a class="dropdown-item" href="{{ path('app_sell') }}"><i class="fas fa-tag me-2"></i>Vendre un article</a></li>
+                                    {% if app.user.isCertified %}
+                                    <li><a class="dropdown-item" href="{{ path('app_masterclass_new') }}"><i class="fas fa-graduation-cap me-2"></i>Créer une masterclass</a></li>
+                                    {% endif %}
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
                                 </ul>

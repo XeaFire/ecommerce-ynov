@@ -63,6 +63,11 @@
         color: var(--dark);
     }
     
+    .badge-certified {
+        background-color: #00c853;
+        color: white;
+    }
+    
     .badge-user {
         background-color: var(--secondary);
         color: white;
@@ -116,6 +121,7 @@
                             <th>Email</th>
                             <th>Date d'inscription</th>
                             <th>Rôle</th>
+                            <th>Certifié</th>
                             <th>Articles</th>
                             <th>Actions</th>
                         </tr>
@@ -136,8 +142,17 @@
                                 <td>
                                     {% if 'ROLE_ADMIN' in user.roles %}
                                         <span class="badge badge-admin">Administrateur</span>
+                                    {% elseif 'ROLE_CERTIFIED' in user.roles %}
+                                        <span class="badge badge-certified">Certifié</span>
                                     {% else %}
                                         <span class="badge badge-user">Utilisateur</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.isCertified %}
+                                        <span class="badge badge-certified"><i class="fas fa-check-circle me-1"></i> Certifié</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Non certifié</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ user.articles|length }}</td>
@@ -146,6 +161,12 @@
                                         <form action="{{ path('app_admin_toggle_role', {'id': user.id}) }}" method="post">
                                             <button type="submit" class="btn btn-sm {% if 'ROLE_ADMIN' in user.roles %}btn-warning{% else %}btn-success{% endif %}" {% if user == app.user %}disabled{% endif %} title="{% if 'ROLE_ADMIN' in user.roles %}Retirer les droits admin{% else %}Donner les droits admin{% endif %}">
                                                 <i class="fas {% if 'ROLE_ADMIN' in user.roles %}fa-user-minus{% else %}fa-user-plus{% endif %}"></i>
+                                            </button>
+                                        </form>
+                                        
+                                        <form action="{{ path('app_admin_toggle_certification', {'id': user.id}) }}" method="post">
+                                            <button type="submit" class="btn btn-sm {% if user.isCertified %}btn-warning{% else %}btn-info{% endif %}" title="{% if user.isCertified %}Retirer la certification{% else %}Certifier l'utilisateur{% endif %}">
+                                                <i class="fas {% if user.isCertified %}fa-certificate text-danger{% else %}fa-certificate{% endif %}"></i>
                                             </button>
                                         </form>
                                         
@@ -159,7 +180,7 @@
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="6" class="text-center py-3">Aucun utilisateur trouvé</td>
+                                <td colspan="7" class="text-center py-3">Aucun utilisateur trouvé</td>
                             </tr>
                         {% endfor %}
                     </tbody>
