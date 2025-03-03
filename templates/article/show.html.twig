@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article.name }} - Leveling{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .article-detail-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+        padding-bottom: 50px;
+    }
+
+    .article-detail-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .article-detail-image {
+        width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+        object-fit: cover;
+        max-height: 400px;
+    }
+
+    .article-detail-price {
+        color: var(--primary);
+        font-size: 2rem;
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .article-detail-seller {
+        color: var(--secondary);
+        font-size: 1rem;
+    }
+
+    .article-detail-stock {
+        background: rgba(0, 255, 136, 0.1);
+        color: var(--primary);
+        padding: 0.3rem 0.8rem;
+        border-radius: 5px;
+        font-size: 1rem;
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+    
+    .article-detail-description {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        color: #e0e0e0;
+    }
+    
+    .back-button {
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="article-detail-section">
+    <div class="container">
+        <div class="back-button">
+            <a href="{{ path('app_articles') }}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-2"></i>Retour aux articles
+            </a>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <div class="article-detail-card p-4 p-md-5">
+            <div class="row">
+                <div class="col-md-5 mb-4 mb-md-0">
+                    {% if article.image %}
+                        <img src="{{ asset('uploads/articles/' ~ article.image) }}" class="article-detail-image" alt="{{ article.name }}">
+                    {% else %}
+                        <img src="https://via.placeholder.com/400x400?text=Pas+d'image" class="article-detail-image" alt="No image">
+                    {% endif %}
+                </div>
+                <div class="col-md-7">
+                    <h1 class="text-white mb-4">{{ article.name }}</h1>
+                    <p class="article-detail-price mb-3">{{ article.price|number_format(2, ',', ' ') }} €</p>
+                    <p class="article-detail-seller mb-3">Vendeur: {{ article.seller.username }}</p>
+                    <p class="article-detail-stock">Stock: {{ article.quantity }}</p>
+                    
+                    <div class="article-detail-description">
+                        <h4 class="text-white mb-3">Description</h4>
+                        <p>{{ article.description }}</p>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {% if is_granted('ROLE_USER') %}
+                            <a href="{{ path('app_cart_add', {'id': article.id}) }}" class="btn btn-neon btn-lg">
+                                <i class="fas fa-shopping-cart me-2"></i>Ajouter au panier
+                            </a>
+                        {% else %}
+                            <a href="{{ path('app_login') }}" class="btn btn-neon btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Connectez-vous pour acheter
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

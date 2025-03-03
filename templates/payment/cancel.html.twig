@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement annulé - GG Shop{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .cancel-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+        padding-bottom: 50px;
+    }
+
+    .cancel-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 0, 102, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .cancel-icon {
+        font-size: 5rem;
+        color: var(--secondary);
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="cancel-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="cancel-card">
+                    <div class="card-body p-4 p-lg-5 text-center">
+                        <i class="fas fa-times-circle cancel-icon"></i>
+                        <h1 class="auth-title mb-3">Paiement annulé</h1>
+                        <p class="text-white mb-4">Votre commande a été annulée et aucun paiement n'a été effectué.</p>
+                        
+                        <div class="mt-4">
+                            <a href="{{ path('app_cart') }}" class="btn btn-neon me-2">
+                                <i class="fas fa-shopping-cart me-2"></i>Retourner au panier
+                            </a>
+                            <a href="{{ path('app_articles') }}" class="btn btn-outline-light">
+                                <i class="fas fa-shopping-bag me-2"></i>Continuer mes achats
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

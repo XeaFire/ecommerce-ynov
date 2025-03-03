@@ -99,11 +99,16 @@
                     <i class="fas fa-shopping-bag"></i> Articles
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_admin_invoices') }}">
+                    <i class="fas fa-file-invoice"></i> Commandes
+                </a>
+            </li>
         </ul>
     </div>
     
     <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card stat-card bg-primary text-white text-center p-4">
                 <div class="card-body">
                     <i class="fas fa-users stat-icon"></i>
@@ -115,7 +120,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card stat-card bg-success text-white text-center p-4">
                 <div class="card-body">
                     <i class="fas fa-shopping-bag stat-icon"></i>
@@ -123,6 +128,18 @@
                     <p class="stat-label">Articles en vente</p>
                     <a href="{{ path('app_admin_articles') }}" class="btn btn-light mt-3">
                         <i class="fas fa-cog"></i> Gérer les articles
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card bg-info text-white text-center p-4">
+                <div class="card-body">
+                    <i class="fas fa-file-invoice stat-icon"></i>
+                    <h2 class="stat-number">{{ totalInvoices }}</h2>
+                    <p class="stat-label">Commandes complétées</p>
+                    <a href="{{ path('app_admin_invoices') }}" class="btn btn-light mt-3">
+                        <i class="fas fa-cog"></i> Gérer les commandes
                     </a>
                 </div>
             </div>

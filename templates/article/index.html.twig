@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Articles - GG Shop{% endblock %}
+{% block title %}Articles - Leveling{% endblock %}
 
 {% block stylesheets %}
 <style>
@@ -81,13 +81,28 @@
     .card-body .d-grid {
         margin-top: auto;
     }
+    
+    .btn-group-vertical {
+        width: 100%;
+        gap: 0.5rem;
+    }
+    
+    .article-title-link {
+        color: white;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .article-title-link:hover {
+        color: var(--primary);
+    }
 </style>
 {% endblock %}
 
 {% block body %}
 <section class="articles-section">
     <div class="container">
-        <h1 class="auth-title text-center mb-5">Équipements Gaming</h1>
+        <h1 class="auth-title text-center mb-5">Articles Gaming</h1>
 
         {% for message in app.flashes('success') %}
             <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -108,22 +123,37 @@
                 {% for article in articles %}
                     <div class="col-md-6 col-lg-4">
                         <div class="article-card">
-                            <div class="article-image-container">
+                            <a href="{{ path('app_article_show', {'id': article.id}) }}" class="article-image-container">
                                 {% if article.image %}
                                     <img src="{{ asset('uploads/articles/' ~ article.image) }}" class="article-image" alt="{{ article.name }}">
                                 {% else %}
                                     <img src="https://via.placeholder.com/400x400?text=Pas+d'image" class="article-image" alt="No image">
                                 {% endif %}
-                            </div>
+                            </a>
                             <div class="card-body p-4">
-                                <h5 class="card-title text-white mb-3">{{ article.name }}</h5>
+                                <h5 class="card-title mb-3">
+                                    <a href="{{ path('app_article_show', {'id': article.id}) }}" class="article-title-link">
+                                        {{ article.name }}
+                                    </a>
+                                </h5>
                                 <p class="article-price mb-2">{{ article.price|number_format(2, ',', ' ') }} €</p>
                                 <p class="article-seller mb-2">Vendeur: {{ article.seller.username }}</p>
                                 <p class="article-stock mb-3">Stock: {{ article.quantity }}</p>
                                 <div class="d-grid">
-                                    <button class="btn btn-neon">
-                                        <i class="fas fa-shopping-cart me-2"></i>Ajouter au panier
-                                    </button>
+                                    <div class="btn-group-vertical">
+                                        <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn btn-outline-light">
+                                            <i class="fas fa-eye me-2"></i>Voir détails
+                                        </a>
+                                        {% if is_granted('ROLE_USER') %}
+                                            <a href="{{ path('app_cart_add', {'id': article.id}) }}" class="btn btn-neon">
+                                                <i class="fas fa-shopping-cart me-2"></i>Ajouter au panier
+                                            </a>
+                                        {% else %}
+                                            <a href="{{ path('app_login') }}" class="btn btn-neon">
+                                                <i class="fas fa-sign-in-alt me-2"></i>Connectez-vous pour acheter
+                                            </a>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>

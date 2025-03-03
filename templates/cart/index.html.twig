@@ -1,0 +1,285 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Panier - GG Shop{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .cart-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+        padding-bottom: 50px;
+    }
+
+    .cart-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .cart-item {
+        border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        padding: 1.5rem 0;
+    }
+
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+
+    .cart-item-image-container {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* Ratio 1:1 (carré) */
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    .cart-item-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .cart-item-price {
+        color: var(--primary);
+        font-weight: bold;
+    }
+
+    .cart-item-total {
+        color: var(--primary);
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .cart-summary {
+        background: rgba(0, 255, 136, 0.05);
+        border-radius: 10px;
+        padding: 1.5rem;
+    }
+
+    .cart-total {
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 255, 136, 0.05);
+        border-radius: 10px;
+        padding: 0.5rem;
+    }
+
+    .quantity-btn {
+        background: none;
+        border: none;
+        color: var(--primary);
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .quantity-btn:hover {
+        background: rgba(0, 255, 136, 0.1);
+        border-radius: 5px;
+    }
+
+    .quantity-input {
+        background: none;
+        border: none;
+        color: white;
+        font-weight: bold;
+        width: 40px;
+        text-align: center;
+    }
+
+    .quantity-input:focus {
+        outline: none;
+    }
+
+    .empty-cart {
+        text-align: center;
+        padding: 3rem 0;
+    }
+
+    .empty-cart i {
+        font-size: 4rem;
+        color: rgba(0, 255, 136, 0.2);
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Gestion des boutons de quantité
+        document.querySelectorAll('.quantity-form').forEach(form => {
+            const minusBtn = form.querySelector('.quantity-minus');
+            const plusBtn = form.querySelector('.quantity-plus');
+            const input = form.querySelector('.quantity-input');
+            const maxStock = parseInt(form.dataset.maxStock);
+            
+            minusBtn.addEventListener('click', function() {
+                let value = parseInt(input.value);
+                if (value > 1) {
+                    input.value = value - 1;
+                    form.submit();
+                }
+            });
+            
+            plusBtn.addEventListener('click', function() {
+                let value = parseInt(input.value);
+                if (value < maxStock) {
+                    input.value = value + 1;
+                    form.submit();
+                }
+            });
+            
+            input.addEventListener('change', function() {
+                let value = parseInt(input.value);
+                if (isNaN(value) || value < 1) {
+                    input.value = 1;
+                } else if (value > maxStock) {
+                    input.value = maxStock;
+                }
+                form.submit();
+            });
+        });
+    });
+</script>
+{% endblock %}
+
+{% block body %}
+<section class="cart-section">
+    <div class="container">
+        <h1 class="auth-title text-center mb-5">Mon Panier</h1>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% if cart.items|length > 0 %}
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="cart-card mb-4">
+                        <div class="card-body p-4">
+                            {% for item in cart.items %}
+                                <div class="cart-item">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-2 mb-3 mb-md-0">
+                                            <div class="cart-item-image-container">
+                                                {% if item.article.image %}
+                                                    <img src="{{ asset('uploads/articles/' ~ item.article.image) }}" class="cart-item-image" alt="{{ item.article.name }}">
+                                                {% else %}
+                                                    <img src="https://via.placeholder.com/400x400?text=Pas+d'image" class="cart-item-image" alt="No image">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3 mb-md-0">
+                                            <h5 class="text-white">{{ item.article.name }}</h5>
+                                            <p class="text-muted mb-0">Vendeur: {{ item.article.seller.username }}</p>
+                                        </div>
+                                        <div class="col-md-2 mb-3 mb-md-0">
+                                            <p class="cart-item-price mb-0">{{ item.article.price|number_format(2, ',', ' ') }} €</p>
+                                        </div>
+                                        <div class="col-md-2 mb-3 mb-md-0">
+                                            <form action="{{ path('app_cart_update', {'id': item.id}) }}" method="post" class="quantity-form" data-max-stock="{{ item.article.quantity }}">
+                                                <div class="quantity-control">
+                                                    <button type="button" class="quantity-minus">-</button>
+                                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.article.quantity }}" class="quantity-input">
+                                                    <button type="button" class="quantity-plus">+</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="col-md-1 mb-3 mb-md-0 text-center">
+                                            <p class="cart-item-total mb-0">{{ (item.article.price * item.quantity)|number_format(2, ',', ' ') }} €</p>
+                                        </div>
+                                        <div class="col-md-1 text-end">
+                                            <a href="{{ path('app_cart_remove', {'id': item.id}) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir retirer cet article du panier ?')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="cart-card">
+                        <div class="card-body p-4">
+                            <h4 class="text-white mb-4">Récapitulatif</h4>
+                            <div class="cart-summary mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-white">Articles ({{ cart.itemCount }})</span>
+                                    <span class="text-white">{{ cart.total|number_format(2, ',', ' ') }} €</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-white">Livraison</span>
+                                    <span class="text-white">Gratuite</span>
+                                </div>
+                                <hr class="my-3" style="border-color: rgba(0, 255, 136, 0.2);">
+                                <div class="d-flex justify-content-between">
+                                    <span class="text-white">Total</span>
+                                    <span class="cart-total">{{ cart.total|number_format(2, ',', ' ') }} €</span>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('app_payment_checkout') }}" class="btn btn-neon">
+                                    <i class="fas fa-credit-card me-2"></i>Passer la commande
+                                </a>
+                                <a href="{{ path('app_cart_clear') }}" class="btn btn-outline-danger" onclick="return confirm('Êtes-vous sûr de vouloir vider votre panier ?')">
+                                    <i class="fas fa-trash me-2"></i>Vider le panier
+                                </a>
+                                <a href="{{ path('app_articles') }}" class="btn btn-outline-light">
+                                    <i class="fas fa-arrow-left me-2"></i>Continuer mes achats
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="cart-card">
+                <div class="card-body p-4">
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3 class="text-white mb-3">Votre panier est vide</h3>
+                        <p class="text-muted mb-4">Vous n'avez pas encore ajouté d'articles à votre panier.</p>
+                        <a href="{{ path('app_articles') }}" class="btn btn-neon">
+                            <i class="fas fa-shopping-bag me-2"></i>Découvrir les articles
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

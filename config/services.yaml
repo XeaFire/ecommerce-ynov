@@ -5,6 +5,9 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     articles_directory: '%kernel.project_dir%/public/uploads/articles'
+    app.stripe_public_key: '%env(STRIPE_PUBLIC_KEY)%'
+    app.stripe_secret_key: '%env(STRIPE_SECRET_KEY)%'
+    app.stripe_webhook_secret: '%env(STRIPE_WEBHOOK_SECRET)%'
 
 services:
     # default configuration for services in *this* file
@@ -27,3 +30,14 @@ services:
     App\Security\FormLoginAuthenticator:
         arguments:
             $urlGenerator: '@router'
+            
+    # Configuration spécifique pour le PaymentController
+    App\Controller\PaymentController:
+        arguments:
+            $stripeSecretKey: '%app.stripe_secret_key%'
+            
+    # Configuration pour le service OrderService
+    # App\Service\OrderService:
+    #    arguments:
+    #        $entityManager: '@doctrine.orm.entity_manager'
+    #        $flashBag: '@request_stack.session.flash_bag'

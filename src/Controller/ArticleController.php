@@ -23,6 +23,14 @@ class ArticleController extends AbstractController
         ]);
     }
 
+    #[Route('/articles/{id}', name: 'app_article_show', requirements: ['id' => '\d+'])]
+    public function show(Article $article): Response
+    {
+        return $this->render('article/show.html.twig', [
+            'article' => $article
+        ]);
+    }
+
     #[Route('/sell', name: 'app_sell')]
     #[IsGranted('ROLE_USER')]
     public function sell(Request $request, EntityManagerInterface $entityManager): Response

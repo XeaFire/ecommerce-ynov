@@ -1,0 +1,228 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration - Détails de la commande{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .admin-header {
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .admin-nav {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .admin-nav .nav-link {
+        color: rgba(255, 255, 255, 0.7);
+        padding: 10px 15px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .admin-nav .nav-link:hover,
+    .admin-nav .nav-link.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--primary);
+    }
+    
+    .admin-nav .nav-link i {
+        margin-right: 10px;
+    }
+    
+    .invoice-header {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .invoice-details {
+        margin-bottom: 30px;
+    }
+    
+    .invoice-item {
+        transition: all 0.3s ease;
+    }
+    
+    .invoice-item:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .status-badge {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .status-completed {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .status-pending {
+        background-color: #ffc107;
+        color: black;
+    }
+    
+    .status-cancelled {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .invoice-total {
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+    
+    .print-button {
+        margin-top: 20px;
+    }
+    
+    .action-buttons {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="admin-header text-center text-white">
+        <h1 class="mb-0">Détails de la Commande</h1>
+        <p class="lead mb-0">Référence: {{ invoice.reference }}</p>
+    </div>
+    
+    <div class="admin-nav">
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_admin_dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_admin_users') }}">
+                    <i class="fas fa-users"></i> Utilisateurs
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_admin_articles') }}">
+                    <i class="fas fa-shopping-bag"></i> Articles
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ path('app_admin_invoices') }}">
+                    <i class="fas fa-file-invoice"></i> Commandes
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="card">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fas fa-file-invoice me-2"></i>Commande {{ invoice.reference }}</h3>
+            <a href="{{ path('app_admin_invoices') }}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-2"></i>Retour aux commandes
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="invoice-header row">
+                <div class="col-md-6">
+                    <h4>Informations client</h4>
+                    <p><strong>Client:</strong> {{ invoice.user.username }}</p>
+                    <p><strong>Email:</strong> {{ invoice.user.email }}</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <h4>Informations commande</h4>
+                    <p><strong>Référence:</strong> {{ invoice.reference }}</p>
+                    <p><strong>Date de commande:</strong> {{ invoice.createdAt ? invoice.createdAt|date('d/m/Y H:i') : 'Non disponible' }}</p>
+                    <p><strong>Date de paiement:</strong> {{ invoice.paidAt ? invoice.paidAt|date('d/m/Y H:i') : 'Non payé' }}</p>
+                    <p>
+                        <strong>Statut:</strong> 
+                        <span class="status-badge {% if invoice.status == 'completed' %}status-completed{% elseif invoice.status == 'pending' %}status-pending{% else %}status-cancelled{% endif %}">
+                            {% if invoice.status == 'completed' %}
+                                Payée
+                            {% elseif invoice.status == 'pending' %}
+                                En attente
+                            {% else %}
+                                Annulée
+                            {% endif %}
+                        </span>
+                    </p>
+                </div>
+            </div>
+            
+            <div class="invoice-details">
+                <h4 class="mb-3">Articles commandés</h4>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Article</th>
+                                <th>Prix unitaire</th>
+                                <th>Quantité</th>
+                                <th class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in invoice.items %}
+                                <tr class="invoice-item">
+                                    <td>{{ item.article.name }}</td>
+                                    <td>{{ item.price|number_format(2, ',', ' ') }} €</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td class="text-end">{{ item.getTotal()|number_format(2, ',', ' ') }} €</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td class="text-end invoice-total">{{ invoice.total|number_format(2, ',', ' ') }} €</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            
+            {% if invoice.status == 'pending' %}
+            <div class="action-buttons">
+                <form action="{{ path('app_admin_accept_invoice', {'id': invoice.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir accepter cette commande ? Le stock sera mis à jour.')">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-2"></i>Accepter la commande
+                    </button>
+                </form>
+                
+                <form action="{{ path('app_admin_cancel_invoice', {'id': invoice.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?')">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times me-2"></i>Annuler la commande
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+            
+            <div class="text-center print-button">
+                {% if invoice.status == 'completed' %}
+                <button class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>Imprimer la facture
+                </button>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    La facture ne peut être imprimée que lorsque la commande est payée.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

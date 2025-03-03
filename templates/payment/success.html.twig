@@ -1,0 +1,145 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement réussi - GG Shop{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .success-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+        padding-bottom: 50px;
+    }
+
+    .success-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .success-icon {
+        font-size: 5rem;
+        color: var(--primary);
+        margin-bottom: 1.5rem;
+    }
+
+    .success-summary {
+        background: rgba(0, 255, 136, 0.05);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .success-item {
+        border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        padding: 1rem 0;
+    }
+
+    .success-item:last-child {
+        border-bottom: none;
+    }
+
+    .success-total {
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .order-info {
+        background: rgba(0, 255, 136, 0.05);
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .order-info-label {
+        color: var(--light);
+        font-weight: bold;
+    }
+
+    .order-info-value {
+        color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="success-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="success-card">
+                    <div class="card-body p-4 p-lg-5 text-center">
+                        <i class="fas fa-check-circle success-icon"></i>
+                        <h1 class="auth-title mb-3">Paiement réussi !</h1>
+                        <p class="text-white mb-4">Votre commande a été confirmée et sera traitée dans les plus brefs délais.</p>
+
+                        <div class="order-info">
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <span class="order-info-label">Numéro de commande :</span>
+                                    <span class="order-info-value">{{ order.id }}</span>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <span class="order-info-label">Date :</span>
+                                    <span class="order-info-value">{{ order.createdAt|date('d/m/Y H:i') }}</span>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <span class="order-info-label">Statut :</span>
+                                    <span class="order-info-value">{{ order.status == 'paid' ? 'Payée' : order.status }}</span>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <span class="order-info-label">Total :</span>
+                                    <span class="order-info-value">{{ order.total|number_format(2, ',', ' ') }} €</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h4 class="text-white mb-3">Détails de la commande</h4>
+                        <div class="success-summary">
+                            {% for item in order.items %}
+                                <div class="success-item">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6 text-start">
+                                            <h5 class="text-white mb-1">{{ item.articleName }}</h5>
+                                            <p class="text-muted mb-0">Vendeur: {{ item.article.seller.username }}</p>
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                            <p class="text-white mb-0">{{ item.price|number_format(2, ',', ' ') }} €</p>
+                                        </div>
+                                        <div class="col-md-2 text-center">
+                                            <p class="text-white mb-0">x {{ item.quantity }}</p>
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <p class="text-white mb-0">{{ (item.price * item.quantity)|number_format(2, ',', ' ') }} €</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            
+                            <hr class="my-3" style="border-color: rgba(0, 255, 136, 0.2);">
+                            
+                            <div class="d-flex justify-content-between">
+                                <span class="text-white">Total</span>
+                                <span class="success-total">{{ order.total|number_format(2, ',', ' ') }} €</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <a href="{{ path('app_articles') }}" class="btn btn-neon">
+                                <i class="fas fa-shopping-bag me-2"></i>Continuer mes achats
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 
