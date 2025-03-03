@@ -40,4 +40,23 @@ class OrderRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    /**
+     * Récupère toutes les commandes d'un utilisateur avec leurs éléments associés
+     * @return Order[] Returns an array of Order objects
+     */
+    public function findOrdersWithItemsByUser($user): array
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.user = :user')
+            ->setParameter('user', $user)
+            ->leftJoin('o.items', 'i')
+            ->addSelect('i')
+            ->leftJoin('i.article', 'a')
+            ->addSelect('a')
+            ->orderBy('o.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

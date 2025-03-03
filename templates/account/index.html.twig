@@ -1,0 +1,720 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ isOwnAccount ? 'Mon compte' : user.username }} - Leveling{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .account-section {
+        min-height: 100vh;
+        background: linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+                    url('https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding-top: 120px;
+        padding-bottom: 50px;
+    }
+
+    .account-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .account-card:hover {
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
+    }
+
+    .account-header {
+        border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .account-username {
+        color: var(--primary);
+        font-size: 2rem;
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .account-email {
+        color: var(--secondary);
+        font-size: 1rem;
+    }
+
+    .nav-tabs {
+        border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+    }
+
+    .nav-tabs .nav-link {
+        color: #fff;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0;
+        position: relative;
+    }
+
+    .nav-tabs .nav-link.active {
+        background: transparent;
+        color: var(--primary);
+    }
+
+    .nav-tabs .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--primary);
+    }
+
+    .tab-content {
+        padding-top: 2rem;
+    }
+
+    .article-card {
+        background: rgba(30, 30, 30, 0.8);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .article-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+    }
+
+    .article-image-container {
+        position: relative;
+        width: 100%;
+        padding-top: 75%;
+        overflow: hidden;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .article-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .article-price {
+        color: var(--primary);
+        font-weight: bold;
+    }
+
+    .order-card {
+        background: rgba(30, 30, 30, 0.8);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+    }
+
+    .order-card:hover {
+        box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+    }
+
+    .order-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+
+    .status-pending {
+        background: rgba(255, 193, 7, 0.2);
+        color: #ffc107;
+    }
+
+    .status-completed {
+        background: rgba(40, 167, 69, 0.2);
+        color: #28a745;
+    }
+
+    .status-cancelled {
+        background: rgba(220, 53, 69, 0.2);
+        color: #dc3545;
+    }
+    
+    .form-control, .form-select {
+        background-color: rgba(30, 30, 30, 0.8) !important;
+        border: 1px solid rgba(0, 255, 136, 0.2);
+        color: white;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(30, 30, 30, 0.9) !important;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(0, 255, 136, 0.25);
+        color: white;
+    }
+    
+    .form-label {
+        color: #e0e0e0;
+    }
+    
+    .profile-quick-links {
+        background: rgba(30, 30, 30, 0.8);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .profile-quick-link {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        color: white;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-bottom: 0.5rem;
+    }
+    
+    .profile-quick-link:hover {
+        background: rgba(0, 255, 136, 0.1);
+        color: var(--primary);
+    }
+    
+    .profile-quick-link.active {
+        background: rgba(0, 255, 136, 0.15);
+        color: var(--primary);
+    }
+    
+    .profile-quick-link i {
+        font-size: 1.2rem;
+        margin-right: 1rem;
+        width: 24px;
+        text-align: center;
+    }
+    
+    .settings-card {
+        background: rgba(30, 30, 30, 0.8);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .settings-card-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        color: var(--primary);
+    }
+    
+    .settings-card-title i {
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<section class="account-section">
+    <div class="container">
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        
+        {% for message in app.flashes('info') %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <div class="account-card p-4 p-md-5">
+            <div class="account-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="account-username">{{ user.username }}</h1>
+                    <p class="account-email">{{ user.email }}</p>
+                </div>
+                {% if isOwnAccount %}
+                    <span class="badge bg-primary">Votre compte</span>
+                {% endif %}
+            </div>
+
+            {% if isOwnAccount %}
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="profile-quick-links">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <a href="#articles" class="profile-quick-link {% if activeTab == 'articles' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#articles">
+                                        <i class="fas fa-box"></i> Articles publiés
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="#orders" class="profile-quick-link {% if activeTab == 'orders' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#orders">
+                                        <i class="fas fa-shopping-bag"></i> Mes commandes
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="#settings" class="profile-quick-link {% if activeTab == 'settings' %}active{% endif %}" data-bs-toggle="tab" data-bs-target="#settings">
+                                        <i class="fas fa-cog"></i> Paramètres du compte
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <ul class="nav nav-tabs" id="accountTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if activeTab == 'articles' %}active{% endif %}" id="articles-tab" data-bs-toggle="tab" data-bs-target="#articles" type="button" role="tab" aria-controls="articles" aria-selected="{{ activeTab == 'articles' ? 'true' : 'false' }}">
+                        Articles publiés
+                    </button>
+                </li>
+                {% if isOwnAccount %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {% if activeTab == 'orders' %}active{% endif %}" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab" aria-controls="orders" aria-selected="{{ activeTab == 'orders' ? 'true' : 'false' }}">
+                            Mes commandes
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link {% if activeTab == 'settings' %}active{% endif %}" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="{{ activeTab == 'settings' ? 'true' : 'false' }}">
+                            Paramètres du compte
+                        </button>
+                    </li>
+                {% endif %}
+            </ul>
+
+            <div class="tab-content" id="accountTabsContent">
+                <!-- Articles publiés -->
+                <div class="tab-pane fade {% if activeTab == 'articles' %}show active{% endif %}" id="articles" role="tabpanel" aria-labelledby="articles-tab">
+                    {% if publishedArticles|length > 0 %}
+                        <div class="row g-4">
+                            {% for article in publishedArticles %}
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="article-card">
+                                        <a href="{{ path('app_article_show', {'id': article.id}) }}" class="article-image-container">
+                                            {% if article.image %}
+                                                <img src="{{ asset('uploads/articles/' ~ article.image) }}" class="article-image" alt="{{ article.name }}">
+                                            {% else %}
+                                                <img src="https://via.placeholder.com/400x300?text=Pas+d'image" class="article-image" alt="No image">
+                                            {% endif %}
+                                        </a>
+                                        <div class="card-body p-3">
+                                            <h5 class="card-title text-white mb-2">{{ article.name }}</h5>
+                                            <p class="article-price mb-2">{{ article.price|number_format(2, ',', ' ') }} €</p>
+                                            <p class="text-muted mb-3">Stock: {{ article.quantity }}</p>
+                                            <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn btn-outline-light btn-sm w-100">
+                                                <i class="fas fa-eye me-2"></i>Voir détails
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-white py-5">
+                            <i class="fas fa-box-open fa-3x mb-3 text-muted"></i>
+                            <h3>Aucun article publié</h3>
+                            <p class="text-muted">{{ isOwnAccount ? 'Vous n\'avez pas encore publié d\'articles.' : 'Cet utilisateur n\'a pas encore publié d\'articles.' }}</p>
+                            {% if isOwnAccount %}
+                                <a href="{{ path('app_sell') }}" class="btn btn-neon mt-3">
+                                    <i class="fas fa-plus me-2"></i>Mettre un article en vente
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if isOwnAccount %}
+                    <!-- Commandes -->
+                    <div class="tab-pane fade {% if activeTab == 'orders' %}show active{% endif %}" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                        {% if purchasedOrders is defined and purchasedOrders is not empty %}
+                            <div class="mb-4">
+                                <h3 class="mb-4"><i class="fas fa-shopping-bag me-2"></i>Historique de vos achats</h3>
+                                <p class="text-muted mb-4">Retrouvez l'ensemble de vos commandes passées sur Leveling.</p>
+                            </div>
+                            
+                            <!-- Résumé des achats -->
+                            <div class="settings-card mb-4">
+                                <h4 class="settings-card-title">
+                                    <i class="fas fa-chart-line"></i>
+                                    Résumé de vos achats
+                                </h4>
+                                <div class="row text-center">
+                                    <div class="col-md-4 mb-3 mb-md-0">
+                                        <div class="p-3 rounded" style="background: rgba(0, 255, 136, 0.1);">
+                                            <h2 class="text-primary mb-1">{{ purchasedOrders|length }}</h2>
+                                            <p class="mb-0">Commandes totales</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3 mb-md-0">
+                                        <div class="p-3 rounded" style="background: rgba(0, 255, 136, 0.1);">
+                                            <h2 class="text-primary mb-1">
+                                                {% set totalItems = 0 %}
+                                                {% for order in purchasedOrders %}
+                                                    {% set totalItems = totalItems + order.items|length %}
+                                                {% endfor %}
+                                                {{ totalItems }}
+                                            </h2>
+                                            <p class="mb-0">Articles achetés</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 rounded" style="background: rgba(0, 255, 136, 0.1);">
+                                            <h2 class="text-primary mb-1">
+                                                {% set totalSpent = 0 %}
+                                                {% for order in purchasedOrders %}
+                                                    {% if order.status != 'cancelled' %}
+                                                        {% set totalSpent = totalSpent + order.total %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {{ totalSpent|number_format(2, ',', ' ') }} €
+                                            </h2>
+                                            <p class="mb-0">Montant total</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Filtres de commandes -->
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                    <h5 class="mb-3 mb-md-0"><i class="fas fa-list me-2"></i>Liste de vos commandes</h5>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-outline-light filter-btn active" data-filter="all">
+                                            Toutes
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="pending">
+                                            En attente
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success filter-btn" data-filter="completed">
+                                            Complétées
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger filter-btn" data-filter="cancelled">
+                                            Annulées
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Liste des commandes -->
+                            <div class="order-list">
+                                {% for order in purchasedOrders %}
+                                    <div class="order-card mb-4 order-item" data-status="{{ order.status }}">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-3">
+                                                <div class="p-3">
+                                                    <h5 class="mb-1">Commande #{{ order.id }}</h5>
+                                                    <p class="text-muted mb-0"><i class="far fa-calendar-alt me-2"></i>{{ order.createdAt|date('d/m/Y H:i') }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="p-3">
+                                                    <h5 class="mb-1">{{ order.total|number_format(2, ',', ' ') }} €</h5>
+                                                    <p class="text-muted mb-0"><i class="fas fa-tag me-2"></i>{{ order.items|length }} article(s)</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="p-3 text-center">
+                                                    {% if order.status == 'pending' %}
+                                                        <span class="order-status status-pending">
+                                                            <i class="fas fa-clock me-1"></i> En attente
+                                                        </span>
+                                                    {% elseif order.status == 'completed' %}
+                                                        <span class="order-status status-completed">
+                                                            <i class="fas fa-check-circle me-1"></i> Complétée
+                                                        </span>
+                                                    {% elseif order.status == 'cancelled' %}
+                                                        <span class="order-status status-cancelled">
+                                                            <i class="fas fa-times-circle me-1"></i> Annulée
+                                                        </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="p-3 text-end">
+                                                    <a href="{{ path('app_admin_invoice_details', {'id': order.id}) }}" class="btn btn-outline-light">
+                                                        <i class="fas fa-eye me-1"></i> Détails
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="order-items p-3 border-top border-secondary">
+                                            <h6 class="mb-3"><i class="fas fa-box-open me-2"></i>Articles achetés</h6>
+                                            <div class="row">
+                                                {% for item in order.items %}
+                                                    <div class="col-md-6 mb-2">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="flex-shrink-0">
+                                                                {% if item.article and item.article.image %}
+                                                                    <img src="{{ asset('uploads/articles/' ~ item.article.image) }}" alt="{{ item.articleName }}" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                                {% else %}
+                                                                    <div class="bg-dark rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                                        <i class="fas fa-image text-muted"></i>
+                                                                    </div>
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="ms-3">
+                                                                <h6 class="mb-0">{{ item.articleName }}</h6>
+                                                                <small class="text-muted">
+                                                                    {{ item.quantity }} x {{ item.price|number_format(2, ',', ' ') }} €
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <p class="text-muted">Besoin d'aide avec une commande ? <a href="#" class="text-primary">Contactez notre support</a></p>
+                            </div>
+                        {% else %}
+                            <div class="text-center text-white py-5">
+                                <i class="fas fa-shopping-cart fa-3x mb-3 text-muted"></i>
+                                <h3>Aucune commande</h3>
+                                <p class="text-muted">Vous n'avez pas encore effectué de commande.</p>
+                                <a href="{{ path('app_articles') }}" class="btn btn-neon mt-3">
+                                    <i class="fas fa-shopping-bag me-2"></i>Parcourir les articles
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Paramètres du compte -->
+                    <div class="tab-pane fade {% if activeTab == 'settings' %}show active{% endif %}" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                        <div class="row">
+                            <div class="col-lg-8 mx-auto">
+                                <!-- Informations personnelles -->
+                                <div class="settings-card">
+                                    <h3 class="settings-card-title">
+                                        <i class="fas fa-user-circle"></i>
+                                        Informations personnelles
+                                    </h3>
+                                    
+                                    {{ form_start(form) }}
+                                        <div class="row mb-4">
+                                            <div class="col-md-6 mb-3">
+                                                {{ form_label(form.username) }}
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-dark text-white border-secondary">
+                                                        <i class="fas fa-user"></i>
+                                                    </span>
+                                                    {{ form_widget(form.username) }}
+                                                </div>
+                                                {{ form_errors(form.username) }}
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                {{ form_label(form.email) }}
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-dark text-white border-secondary">
+                                                        <i class="fas fa-envelope"></i>
+                                                    </span>
+                                                    {{ form_widget(form.email) }}
+                                                </div>
+                                                {{ form_errors(form.email) }}
+                                            </div>
+                                        </div>
+                                        
+                                        <h4 class="text-white mt-4 mb-3">Changer de mot de passe</h4>
+                                        <p class="text-muted mb-4">Laissez ces champs vides si vous ne souhaitez pas modifier votre mot de passe.</p>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                {{ form_label(form.plainPassword.first) }}
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-dark text-white border-secondary">
+                                                        <i class="fas fa-lock"></i>
+                                                    </span>
+                                                    {{ form_widget(form.plainPassword.first) }}
+                                                </div>
+                                                {{ form_errors(form.plainPassword.first) }}
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                {{ form_label(form.plainPassword.second) }}
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-dark text-white border-secondary">
+                                                        <i class="fas fa-lock"></i>
+                                                    </span>
+                                                    {{ form_widget(form.plainPassword.second) }}
+                                                </div>
+                                                {{ form_errors(form.plainPassword.second) }}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-grid mt-4">
+                                            <button type="submit" class="btn btn-neon">
+                                                <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                                            </button>
+                                        </div>
+                                    {{ form_end(form) }}
+                                </div>
+                                
+                                <!-- Sécurité du compte -->
+                                <div class="settings-card">
+                                    <h3 class="settings-card-title">
+                                        <i class="fas fa-shield-alt"></i>
+                                        Sécurité du compte
+                                    </h3>
+                                    <p class="text-muted mb-4">Protégez votre compte en suivant ces bonnes pratiques :</p>
+                                    
+                                    <ul class="list-group list-group-flush bg-transparent mb-4">
+                                        <li class="list-group-item bg-transparent text-white border-secondary">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Utilisez un mot de passe unique et complexe
+                                        </li>
+                                        <li class="list-group-item bg-transparent text-white border-secondary">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Changez régulièrement votre mot de passe
+                                        </li>
+                                        <li class="list-group-item bg-transparent text-white border-secondary">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            Ne partagez jamais vos identifiants
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Activer les liens rapides et synchroniser avec les onglets
+        const quickLinks = document.querySelectorAll('.profile-quick-link');
+        const tabButtons = document.querySelectorAll('.nav-tabs .nav-link');
+        
+        quickLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Récupérer la cible
+                const target = this.getAttribute('data-bs-target');
+                
+                // Retirer la classe active de tous les liens
+                quickLinks.forEach(l => l.classList.remove('active'));
+                
+                // Ajouter la classe active au lien cliqué
+                this.classList.add('active');
+                
+                // Activer l'onglet correspondant
+                const tabToActivate = document.querySelector(`.nav-tabs .nav-link[data-bs-target="${target}"]`);
+                if (tabToActivate) {
+                    const tab = new bootstrap.Tab(tabToActivate);
+                    tab.show();
+                }
+            });
+        });
+        
+        // Vérifier si un onglet spécifique est demandé dans l'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        
+        if (tab === 'orders') {
+            // Activer l'onglet des commandes
+            const ordersTab = document.getElementById('orders-tab');
+            if (ordersTab) {
+                var tabInstance = new bootstrap.Tab(ordersTab);
+                tabInstance.show();
+                
+                // Activer également le lien rapide correspondant
+                const ordersQuickLink = document.querySelector('.profile-quick-link[data-bs-target="#orders"]');
+                if (ordersQuickLink) {
+                    quickLinks.forEach(l => l.classList.remove('active'));
+                    ordersQuickLink.classList.add('active');
+                }
+            }
+        } else if (tab === 'settings') {
+            // Activer l'onglet des paramètres
+            const settingsTab = document.getElementById('settings-tab');
+            if (settingsTab) {
+                var tabInstance = new bootstrap.Tab(settingsTab);
+                tabInstance.show();
+                
+                // Activer également le lien rapide correspondant
+                const settingsQuickLink = document.querySelector('.profile-quick-link[data-bs-target="#settings"]');
+                if (settingsQuickLink) {
+                    quickLinks.forEach(l => l.classList.remove('active'));
+                    settingsQuickLink.classList.add('active');
+                }
+            }
+        }
+        
+        {% if formSubmitted %}
+            // Activer l'onglet des paramètres si le formulaire a été soumis
+            var settingsTab = document.getElementById('settings-tab');
+            if (settingsTab) {
+                var tab = new bootstrap.Tab(settingsTab);
+                tab.show();
+                
+                // Activer également le lien rapide correspondant
+                const settingsQuickLink = document.querySelector('.profile-quick-link[data-bs-target="#settings"]');
+                if (settingsQuickLink) {
+                    quickLinks.forEach(l => l.classList.remove('active'));
+                    settingsQuickLink.classList.add('active');
+                }
+            }
+        {% endif %}
+        
+        // Filtres pour les commandes
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const orderItems = document.querySelectorAll('.order-item');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Retirer la classe active de tous les boutons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                // Ajouter la classe active au bouton cliqué
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                // Afficher/masquer les commandes selon le filtre
+                orderItems.forEach(item => {
+                    if (filter === 'all') {
+                        item.style.display = 'block';
+                    } else {
+                        const status = item.getAttribute('data-status');
+                        if (status === filter) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %} 

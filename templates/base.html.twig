@@ -74,7 +74,7 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="#products">Articles</a>
+                            <a class="nav-link" href="{{ path('app_articles') }}">Articles</a>
                         </li>
                         {% if is_granted('ROLE_ADMIN') %}
                         <li class="nav-item">
@@ -91,9 +91,11 @@
                                     {{ app.user.username }}
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" href="{{ path('app_sell') }}">Vendre un article</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_account') }}"><i class="fas fa-user me-2"></i>Mon profil</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_account') }}?tab=orders"><i class="fas fa-shopping-bag me-2"></i>Mes commandes</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_sell') }}"><i class="fas fa-tag me-2"></i>Vendre un article</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="{{ path('app_logout') }}">Déconnexion</a></li>
+                                    <li><a class="dropdown-item" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item">
