@@ -79,6 +79,13 @@
                         <li class="nav-item">
                             <a class="nav-link" href="#coaching">Coaching</a>
                         </li>
+                        {% if is_granted('ROLE_ADMIN') %}
+                        <li class="nav-item">
+                            <a class="nav-link text-primary" href="{{ path('app_admin_dashboard') }}">
+                                <i class="fas fa-lock me-1"></i>Administration
+                            </a>
+                        </li>
+                        {% endif %}
                     </ul>
                     <ul class="navbar-nav">
                         {% if app.user %}
@@ -97,6 +104,17 @@
                 </div>
             </div>
         </nav>
+
+        <div class="container mt-5 pt-5">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }} alert-dismissible fade show mt-3" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        </div>
 
         {% block body %}{% endblock %}
 

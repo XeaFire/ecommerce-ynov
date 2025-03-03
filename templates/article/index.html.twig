@@ -20,6 +20,9 @@
         border: 1px solid rgba(0, 255, 136, 0.1);
         border-radius: 15px;
         transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     .article-card:hover {
@@ -27,10 +30,26 @@
         box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
     }
 
-    .article-image {
+    .article-image-container {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* Ratio 1:1 (carré) */
+        overflow: hidden;
         border-radius: 15px 15px 0 0;
-        height: 200px;
+    }
+
+    .article-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .article-card:hover .article-image {
+        transform: scale(1.05);
     }
 
     .article-price {
@@ -52,6 +71,16 @@
         border-radius: 5px;
         font-size: 0.9rem;
     }
+    
+    .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card-body .d-grid {
+        margin-top: auto;
+    }
 </style>
 {% endblock %}
 
@@ -60,16 +89,32 @@
     <div class="container">
         <h1 class="auth-title text-center mb-5">Équipements Gaming</h1>
 
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
         {% if articles|length > 0 %}
             <div class="row g-4">
                 {% for article in articles %}
                     <div class="col-md-6 col-lg-4">
                         <div class="article-card">
-                            {% if article.image %}
-                                <img src="{{ asset('uploads/articles/' ~ article.image) }}" class="article-image w-100" alt="{{ article.name }}">
-                            {% else %}
-                                <img src="https://via.placeholder.com/400x200" class="article-image w-100" alt="No image">
-                            {% endif %}
+                            <div class="article-image-container">
+                                {% if article.image %}
+                                    <img src="{{ asset('uploads/articles/' ~ article.image) }}" class="article-image" alt="{{ article.name }}">
+                                {% else %}
+                                    <img src="https://via.placeholder.com/400x400?text=Pas+d'image" class="article-image" alt="No image">
+                                {% endif %}
+                            </div>
                             <div class="card-body p-4">
                                 <h5 class="card-title text-white mb-3">{{ article.name }}</h5>
                                 <p class="article-price mb-2">{{ article.price|number_format(2, ',', ' ') }} €</p>
@@ -88,6 +133,11 @@
         {% else %}
             <div class="text-center text-white">
                 <p>Aucun article disponible pour le moment.</p>
+                {% if is_granted('ROLE_USER') %}
+                    <a href="{{ path('app_sell') }}" class="btn btn-neon mt-3">
+                        <i class="fas fa-plus me-2"></i>Mettre un article en vente
+                    </a>
+                {% endif %}
             </div>
         {% endif %}
     </div>

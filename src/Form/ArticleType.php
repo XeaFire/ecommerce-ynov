@@ -11,8 +11,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Image;
-use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class ArticleType extends AbstractType
 {
@@ -41,13 +42,34 @@ class ArticleType extends AbstractType
                 'mapped' => false,
                 'required' => false,
                 'constraints' => [
-                    new File([
-                        'maxSize' => '2M',
-                        'mimeTypes' => [
-                            'image/jpeg',
-                            'image/png',
-                        ],
-                        'mimeTypesMessage' => 'Veuillez uploader une image JPG ou PNG',
+                    new Callback([
+                        'callback' => function ($file, ExecutionContextInterface $context) {
+                            if (!$file) {
+                                return;
+                            }
+                            
+                            // Vérifier la taille du fichier (2Mo max)
+                            $maxSize = 2 * 1024 * 1024; // 2Mo en octets
+                            if ($file->getSize() > $maxSize) {
+                                $context->buildViolation('Le fichier est trop volumineux ({{ size }} Mo). La taille maximale autorisée est {{ limit }} Mo.')
+                                    ->setParameters([
+                                        '{{ size }}' => round($file->getSize() / 1048576, 2),
+                                        '{{ limit }}' => 2
+                                    ])
+                                    ->addViolation();
+                                return;
+                            }
+                            
+                            // Vérifier l'extension du fichier
+                            $originalFilename = $file->getClientOriginalName();
+                            $extension = strtolower(pathinfo($originalFilename, PATHINFO_EXTENSION));
+                            $validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                            
+                            if (!in_array($extension, $validExtensions)) {
+                                $context->buildViolation('Veuillez uploader une image valide (JPG, PNG, GIF ou WEBP).')
+                                    ->addViolation();
+                            }
+                        }
                     ])
                 ],
             ])

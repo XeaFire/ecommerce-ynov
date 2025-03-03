@@ -1,0 +1,185 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des articles - Administration{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+    .admin-header {
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .admin-nav {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 30px;
+    }
+    
+    .admin-nav .nav-link {
+        color: rgba(255, 255, 255, 0.7);
+        padding: 10px 15px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .admin-nav .nav-link:hover,
+    .admin-nav .nav-link.active {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--primary);
+    }
+    
+    .admin-nav .nav-link i {
+        margin-right: 10px;
+    }
+    
+    .article-row {
+        transition: all 0.3s ease;
+    }
+    
+    .article-row:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .article-image {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .article-image-placeholder {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        background-color: rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .article-name {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .article-description {
+        font-size: 0.85rem;
+        opacity: 0.7;
+        max-width: 300px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .price-badge {
+        background-color: var(--primary);
+        color: var(--dark);
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+    
+    .stock-badge {
+        background-color: var(--secondary);
+        color: white;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="admin-header text-center text-white">
+        <h1 class="mb-0">Gestion des articles</h1>
+        <p class="lead mb-0">Administrez les articles en vente</p>
+    </div>
+    
+    <div class="admin-nav">
+        <ul class="nav nav-pills">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_admin_dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ path('app_admin_users') }}">
+                    <i class="fas fa-users"></i> Utilisateurs
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="{{ path('app_admin_articles') }}">
+                    <i class="fas fa-shopping-bag"></i> Articles
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="card">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0"><i class="fas fa-shopping-bag me-2"></i>Liste des articles</h3>
+            <span class="badge bg-primary">{{ articles|length }} articles</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Article</th>
+                            <th>Prix</th>
+                            <th>Stock</th>
+                            <th>Vendeur</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for article in articles %}
+                            <tr class="article-row">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if article.image %}
+                                            <img src="{{ asset('uploads/articles/' ~ article.image) }}" alt="{{ article.name }}" class="article-image me-3">
+                                        {% else %}
+                                            <div class="article-image-placeholder me-3">
+                                                <i class="fas fa-image"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="article-name">{{ article.name }}</div>
+                                            <div class="article-description">{{ article.description }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="price-badge">{{ article.price }} €</span></td>
+                                <td><span class="stock-badge">{{ article.quantity }}</span></td>
+                                <td>{{ article.seller.username }}</td>
+                                <td>{{ article.createdAt|date('d/m/Y H:i') }}</td>
+                                <td>
+                                    <form action="{{ path('app_admin_delete_article', {'id': article.id}) }}" method="post" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.')">
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Supprimer l'article">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center py-3">Aucun article trouvé</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
