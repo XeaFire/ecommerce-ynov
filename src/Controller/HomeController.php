@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\ArticleRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -9,18 +10,13 @@ use Symfony\Component\Routing\Attribute\Route;
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home', methods: ['GET'])]
-    public function index(): Response
+    public function index(ArticleRepository $articleRepository): Response
     {
-        // Test simple pour vérifier que le template fonctionne
+        // Récupérer les 4 derniers articles ajoutés
+        $latestArticles = $articleRepository->findBy([], ['id' => 'DESC'], 4);
+        
         return $this->render('home/index.html.twig', [
-            'featuredProducts' => [
-                [
-                    'name' => 'Test Product',
-                    'price' => 99.99,
-                    'image' => 'https://placehold.co/300x300',
-                    'category' => 'test'
-                ]
-            ]
+            'latestArticles' => $latestArticles
         ]);
     }
 } 

@@ -1,5 +1,7 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}Accueil - Leveling{% endblock %}
+
 {% block stylesheets %}
 <style>
     .hero-section {
@@ -63,6 +65,117 @@
         height: 3px;
         background: var(--primary);
     }
+
+    .article-card {
+        background: rgba(20, 20, 20, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .article-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+    }
+
+    .article-image-container {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* Ratio 1:1 (carré) */
+        overflow: hidden;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .article-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .article-card:hover .article-image {
+        transform: scale(1.05);
+    }
+
+    .article-price {
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+    }
+
+    .article-seller {
+        color: var(--secondary);
+        font-size: 0.9rem;
+    }
+
+    .article-stock {
+        background: rgba(0, 255, 136, 0.1);
+        color: var(--primary);
+        padding: 0.2rem 0.5rem;
+        border-radius: 5px;
+        font-size: 0.9rem;
+    }
+    
+    .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card-body .d-grid {
+        margin-top: auto;
+    }
+
+    .esport-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.9)),
+                    url('https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80');
+        background-size: cover;
+        background-position: center;
+        padding: 100px 0;
+    }
+    
+    .feature-card {
+        background: rgba(20, 20, 20, 0.8);
+        border: 1px solid rgba(0, 255, 136, 0.1);
+        border-radius: 15px;
+        padding: 30px;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        color: var(--primary);
+        margin-bottom: 20px;
+    }
+    
+    .article-title-link {
+        color: white;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .article-title-link:hover {
+        color: var(--primary);
+    }
+    
+    .btn-group-vertical {
+        width: 100%;
+        gap: 0.5rem;
+    }
 </style>
 {% endblock %}
 
@@ -72,56 +185,123 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 hero-content">
-                    <h1 class="hero-title mb-4">Level Up Your Game</h1>
-                    <p class="lead mb-4">Équipement pro-gaming et coaching personnalisé pour atteindre le niveau supérieur</p>
+                    <h1 class="hero-title mb-4">Dominez l'Arène</h1>
+                    <p class="lead mb-4 text-white">Équipement gaming de pointe pour accélérer votre progression et atteindre le niveau professionnel</p>
                     <div class="d-flex gap-3">
-                        <a href="#products" class="btn btn-neon">Voir l'équipement</a>
-                        <a href="#coaching" class="btn btn-outline-light">Découvrir le coaching</a>
+                        <a href="#latest-articles" class="btn btn-neon">Voir les derniers articles</a>
+                        <a href="{{ path('app_articles') }}" class="btn btn-outline-light">Tous nos articles</a>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Featured Products -->
-    <section class="py-5" id="products">
+    <!-- Latest Articles -->
+    <section class="py-5 bg-dark" id="latest-articles">
         <div class="container">
-            <h2 class="section-title">Équipement Pro</h2>
+            <h2 class="section-title">Dernières Nouveautés</h2>
             <div class="row g-4">
-                {% for product in featuredProducts %}
-                    <div class="col-md-4">
-                        <div class="card product-card h-100">
-                            <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
-                            <div class="card-body">
-                                <span class="category-badge mb-2">{{ product.category }}</span>
-                                <h3 class="h5 text-light">{{ product.name }}</h3>
-                                <p class="price-tag mb-3">{{ product.price }}€</p>
-                                <button class="btn btn-neon w-100">Ajouter au panier</button>
+                {% if latestArticles|length > 0 %}
+                    {% for article in latestArticles %}
+                        <div class="col-md-6 col-lg-3">
+                            <div class="article-card">
+                                <a href="{{ path('app_article_show', {'id': article.id}) }}" class="article-image-container">
+                                    {% if article.image %}
+                                        <img src="{{ asset('uploads/articles/' ~ article.image) }}" class="article-image" alt="{{ article.name }}">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/400x400?text=Pas+d'image" class="article-image" alt="No image">
+                                    {% endif %}
+                                </a>
+                                <div class="card-body p-4">
+                                    <h5 class="card-title mb-3">
+                                        <a href="{{ path('app_article_show', {'id': article.id}) }}" class="article-title-link">
+                                            {{ article.name }}
+                                        </a>
+                                    </h5>
+                                    <p class="article-price mb-2">{{ article.price|number_format(2, ',', ' ') }} €</p>
+                                    <p class="article-seller mb-2">Vendeur: {{ article.seller.username }}</p>
+                                    <p class="article-stock mb-3">Stock: {{ article.quantity }}</p>
+                                    <div class="d-grid">
+                                        <div class="btn-group-vertical">
+                                            <a href="{{ path('app_article_show', {'id': article.id}) }}" class="btn btn-outline-light">
+                                                <i class="fas fa-eye me-2"></i>Voir détails
+                                            </a>
+                                            {% if is_granted('ROLE_USER') %}
+                                                <a href="{{ path('app_cart_add', {'id': article.id}) }}" class="btn btn-neon">
+                                                    <i class="fas fa-shopping-cart me-2"></i>Ajouter au panier
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ path('app_login') }}" class="btn btn-neon">
+                                                    <i class="fas fa-sign-in-alt me-2"></i>Connectez-vous
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center text-white">
+                        <p>Aucun article disponible pour le moment.</p>
                     </div>
-                {% endfor %}
+                {% endif %}
+            </div>
+            <div class="text-center mt-5">
+                <a href="{{ path('app_articles') }}" class="btn btn-neon btn-lg">Voir tous les articles</a>
             </div>
         </div>
     </section>
 
-    <!-- Coaching Section -->
-    <section class="py-5 bg-black" id="coaching">
+    <!-- Esport Section -->
+    <section class="esport-section">
         <div class="container">
-            <h2 class="section-title">Coaching Personnalisé</h2>
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <img src="https://placehold.co/600x400" class="img-fluid rounded" alt="Coaching">
+            <div class="row mb-5">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h2 class="section-title text-center mb-4">Accélérez Votre Progression</h2>
+                    <p class="lead text-white mb-0">Dans le monde compétitif de l'esport, chaque milliseconde compte. Leveling vous offre les outils pour franchir les paliers et atteindre l'élite.</p>
                 </div>
-                <div class="col-md-6">
-                    <h3 class="text-primary mb-4">Progressez avec les meilleurs</h3>
-                    <p class="lead">Nos coachs professionnels vous aident à atteindre vos objectifs gaming.</p>
-                    <ul class="list-unstyled mb-4">
-                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i> Sessions personnalisées</li>
-                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i> Analyse de vos parties</li>
-                        <li class="mb-2"><i class="fas fa-check text-primary me-2"></i> Suivi de progression</li>
-                    </ul>
-                    <a href="#" class="btn btn-neon">Réserver une session</a>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h3 class="text-white mb-3">Performance Optimale</h3>
+                        <p class="text-light">Nos équipements sont sélectionnés pour leurs performances exceptionnelles. Réduisez votre temps de réaction et améliorez votre précision avec du matériel professionnel.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <h3 class="text-white mb-3">Avantage Compétitif</h3>
+                        <p class="text-light">Utilisez les mêmes équipements que les pros. Gagnez cet avantage décisif qui vous permettra de dominer vos adversaires et de grimper dans les classements.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-white mb-3">Progression Constante</h3>
+                        <p class="text-light">Avec le bon équipement, votre courbe de progression s'accélère. Franchissez les paliers plus rapidement et atteignez votre plein potentiel dans vos jeux préférés.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-5">
+                <div class="col-lg-10 mx-auto">
+                    <div class="p-5 bg-black rounded-3 text-center">
+                        <h3 class="text-primary mb-4">Prêt à passer au niveau supérieur ?</h3>
+                        <p class="lead text-white mb-4">Rejoignez des milliers de joueurs qui ont transformé leur expérience de jeu avec Leveling.</p>
+                        <a href="{{ path('app_register') }}" class="btn btn-neon btn-lg">Commencer Maintenant</a>
+                    </div>
                 </div>
             </div>
         </div>
